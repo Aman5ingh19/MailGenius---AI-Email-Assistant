@@ -46,6 +46,7 @@ export default function Topbar() {
             color: 'var(--text)'
           }}
         />
+      </div>
       </header>
 
       {/* Mobile Menu Overlay */}
