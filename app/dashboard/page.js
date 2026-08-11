@@ -84,7 +84,7 @@ export default async function DashboardPage() {
       )}
 
       {/* ── STATS ROW ──────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
         
         {/* Card 1 */}
         <div className="surface" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', borderRadius: '12px' }}>
@@ -132,8 +132,8 @@ export default async function DashboardPage() {
 
       </div>
 
-      {/* ── MIDDLE ROW ─────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      {/* ── MAIN ROW ───────────────────────────────────────────── */}
+      <div className="dashboard-middle">
         
         {/* Quick Generate Component */}
         <QuickGenerate />

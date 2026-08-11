@@ -13,11 +13,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
       </head>
-      <body style={{ display: 'flex', background: 'var(--bg)' }}>
+      <body className="app-layout">
         <Sidebar />
-        <div style={{ flex: 1, marginLeft: '260px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="main-wrapper">
           <Topbar />
-          <main style={{ padding: '2rem', flex: 1 }}>
+          <main className="main-content">
             {children}
           </main>
         </div>

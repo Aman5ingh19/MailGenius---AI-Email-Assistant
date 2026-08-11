@@ -170,10 +170,10 @@ function GeneratorInner() {
         </div>
       </div>
 
-      <div className="surface" style={{ display: 'flex', flexDirection: 'row', overflow: 'hidden', minHeight: '650px', padding: 0 }}>
+      <div className="surface generator-layout">
         
         {/* ── LEFT SIDEBAR (Controls/Input) ───────────────────────────── */}
-        <div style={{ width: '380px', background: 'var(--surface-raised)', borderRight: '1px solid var(--border)', padding: '2rem', flexShrink: 0, overflowY: 'auto' }}>
+        <div className="generator-sidebar">
           
           {mode === 'generate' && (
             <>

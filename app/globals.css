@@ -383,3 +383,146 @@ body {
     --card-padding: 1.6875rem; /* ~25% reduction */
   }
 }
+
+/* ── Responsive Utilities & Structures ──────────────────────── */
+.app-layout {
+  display: flex;
+  background: var(--bg);
+}
+
+.desktop-sidebar {
+  width: 260px;
+  height: 100vh;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  z-index: 50;
+  transition: transform 0.3s ease;
+}
+
+.main-wrapper {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+}
+
+.main-content {
+  padding: 2rem;
+  flex: 1;
+}
+
+.topbar-header {
+  height: 72px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 1rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.dashboard-middle {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.generator-layout {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 650px;
+  padding: 0;
+}
+
+.generator-sidebar {
+  width: 380px;
+  background: var(--surface-raised);
+  border-right: 1px solid var(--border);
+  padding: 2rem;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+/* Tablet (Max 1024px) */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-middle {
+    grid-template-columns: 1fr;
+  }
+  .generator-layout {
+    flex-direction: column;
+    overflow-y: visible;
+  }
+  .generator-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: none;
+  }
+}
+
+/* Mobile (Max 768px) */
+@media (max-width: 768px) {
+  .desktop-sidebar {
+    transform: translateX(-100%); /* Hidden by default on mobile */
+  }
+  .desktop-sidebar.open {
+    transform: translateX(0); /* Shown when toggled */
+    box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+  }
+  .main-wrapper {
+    margin-left: 0;
+  }
+  .main-content {
+    padding: 1rem;
+  }
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+  }
+  .topbar-header {
+    padding: 0 1rem;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .page-wrap {
+    padding: 1rem;
+  }
+  .card {
+    padding: 1.25rem;
+  }
+  .display-title {
+    font-size: 1.5rem;
+  }
+}

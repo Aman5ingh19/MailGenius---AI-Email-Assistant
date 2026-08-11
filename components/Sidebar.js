@@ -43,19 +43,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside style={{
-      width: '260px',
-      height: '100vh',
-      borderRight: '1px solid var(--border)',
-      background: 'var(--surface)',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '1.5rem',
-      zIndex: 50
-    }}>
+    <aside className="desktop-sidebar">
       {/* Brand */}
       <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', marginBottom: '2.5rem' }}>
         <div style={{ color: 'var(--accent)' }}>
