@@ -2,7 +2,7 @@ import SavedClient from './SavedClient';
 import { getTemplates } from '@/lib/actions';
 
 export const metadata = {
-  title: 'Saved Templates — MailGenius',
+  title: 'Saved Templates — 📧 MailGenius',
   description: 'Browse and reuse your saved AI email reply templates.',
 };
 

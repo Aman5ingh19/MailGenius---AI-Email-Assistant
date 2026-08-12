@@ -3,7 +3,7 @@ import Sidebar from '@/components/Sidebar';
 import Topbar from '@/components/Topbar';
 
 export const metadata = {
-  title: 'AI Email Reply Generator',
+  title: '📧 MailGenius — AI Email Assistant',
   description: 'Generate professional AI-powered email replies in seconds. Choose your tone, paste your email, and let Gemini craft the perfect response.',
   keywords: 'AI email, email reply generator, Gemini AI, email assistant',
 };

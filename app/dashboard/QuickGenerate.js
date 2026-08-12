@@ -43,7 +43,7 @@ export default function QuickGenerate() {
 
       <div style={{ flex: 1, position: 'relative', marginBottom: '1.25rem' }}>
         <div style={{ position: 'absolute', top: '1rem', left: '1rem', color: 'var(--text-dim)' }}>
-           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
         </div>
         <textarea
           value={email}
@@ -58,7 +58,7 @@ export default function QuickGenerate() {
       </div>
 
       {error && <div className="alert-error" style={{ marginBottom: '1rem', padding: '0.75rem' }}>{error}</div>}
-      
+
       {reply && (
         <div style={{ padding: '1rem', background: 'var(--surface-raised)', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.875rem', maxHeight: '150px', overflowY: 'auto' }}>
           <strong>Generated Reply:</strong><br />
@@ -69,7 +69,7 @@ export default function QuickGenerate() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Tone</span>
-          <select 
+          <select
             value={tone}
             onChange={(e) => setTone(e.target.value)}
             style={{ padding: '0.5rem 2rem 0.5rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontSize: '0.875rem', outline: 'none' }}
@@ -80,8 +80,8 @@ export default function QuickGenerate() {
             <option value="persuasive">🎯 Persuasive</option>
           </select>
         </div>
-        
-        <button 
+
+        <button
           onClick={handleGenerate}
           disabled={loading || !email.trim()}
           className="btn-primary"

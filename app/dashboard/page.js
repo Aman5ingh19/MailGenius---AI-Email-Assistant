@@ -6,7 +6,7 @@ import EmailHistory from '@/lib/models/EmailHistory';
 import Template from '@/lib/models/Template';
 
 export const metadata = {
-  title: 'Dashboard — MailGenius',
+  title: 'Dashboard — 📧 MailGenius',
   description: 'View your AI email reply statistics and recent activity.',
 };
 
@@ -26,12 +26,12 @@ function truncate(text, max = 180) {
 export default async function DashboardPage() {
   let stats = { totalReplies: 0, mostRecent: null, recentActivity: [], savedReplies: 0, repliesThisWeek: 0 };
   let dbError = null;
-  
+
   try {
     await connectDB();
     stats.totalReplies = await EmailHistory.countDocuments();
     stats.savedReplies = await Template.countDocuments();
-    
+
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     stats.repliesThisWeek = await EmailHistory.countDocuments({ created_at: { $gte: sevenDaysAgo } });
@@ -40,13 +40,13 @@ export default async function DashboardPage() {
       .sort({ created_at: -1 })
       .limit(3)
       .lean();
-    
+
     stats.mostRecent = recent[0] ? {
       ...recent[0],
       _id: recent[0]._id.toString(),
       created_at: recent[0].created_at?.toISOString() ?? null,
     } : null;
-    
+
     stats.recentActivity = recent.map(r => ({
       ...r,
       _id: r._id.toString(),
@@ -85,11 +85,11 @@ export default async function DashboardPage() {
 
       {/* ── STATS ROW ──────────────────────────────────────────── */}
       <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
-        
+
         {/* Card 1 */}
         <div className="surface" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', borderRadius: '12px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 44, 57, 0.08)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
           </div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, fontFamily: 'var(--font-display)' }}>{stats.totalReplies}</div>
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
         {/* Card 2 */}
         <div className="surface" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', borderRadius: '12px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 44, 57, 0.08)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
           </div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, fontFamily: 'var(--font-display)' }}>{stats.savedReplies}</div>
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
         {/* Card 3 */}
         <div className="surface" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', borderRadius: '12px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 44, 57, 0.08)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
           </div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, fontFamily: 'var(--font-display)' }}>{stats.repliesThisWeek}</div>
@@ -122,7 +122,7 @@ export default async function DashboardPage() {
         {/* Card 4 */}
         <div className="surface" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', borderRadius: '12px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 44, 57, 0.08)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           </div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, fontFamily: 'var(--font-display)' }}>{avgTimeSaved.toFixed(1)}h</div>
@@ -134,7 +134,7 @@ export default async function DashboardPage() {
 
       {/* ── MAIN ROW ───────────────────────────────────────────── */}
       <div className="dashboard-middle">
-        
+
         {/* Quick Generate Component */}
         <QuickGenerate />
 
@@ -216,7 +216,7 @@ export default async function DashboardPage() {
               <div>Tone</div>
               <div>Generated</div>
             </div>
-            
+
             {stats.recentActivity.map((activity, i) => (
               <div key={activity._id} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr', alignItems: 'center', padding: '1rem 0', borderBottom: i !== stats.recentActivity.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', fontWeight: 500 }}>

@@ -3,7 +3,7 @@ import HistoryClient from './HistoryClient';
 import { getHistory } from '@/lib/actions';
 
 export const metadata = {
-  title: 'History — MailGenius',
+  title: 'History — 📧 MailGenius',
   description: 'Browse all your past AI-generated email replies.',
 };
 
