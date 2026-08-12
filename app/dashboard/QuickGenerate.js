@@ -66,7 +66,7 @@ export default function QuickGenerate() {
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Tone</span>
           <select 
@@ -85,7 +85,7 @@ export default function QuickGenerate() {
           onClick={handleGenerate}
           disabled={loading || !email.trim()}
           className="btn-primary"
-          style={{ padding: '0.5rem 1.25rem', fontSize: '0.875rem' }}
+          style={{ padding: '0.5rem 1.25rem', fontSize: '0.875rem', whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           {loading ? 'Generating...' : 'Generate Reply ✨'}
         </button>
