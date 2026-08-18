@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useTransition, useEffect, Suspense } from 'react';
+import { useState, useTransition, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { saveTemplate } from '@/lib/actions';
 import Postmark from '@/components/Postmark';
 
@@ -13,6 +14,8 @@ const TONES = [
 ];
 
 function GeneratorInner() {
+  const { data: session } = useSession();
+  const isGuest = !session?.user;
   const [mode, setMode] = useState('generate'); // 'generate' or 'improve'
   
   // Generate State
@@ -41,6 +44,15 @@ function GeneratorInner() {
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
 
+  // Quick Replies State
+  const [quickReplies, setQuickReplies] = useState([]);
+  const [loadingQuickReplies, setLoadingQuickReplies] = useState(false);
+
+  // File Upload State
+  const fileInputRef = useRef(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+
+
   useEffect(() => {
     if (searchParams.get('reuse')) {
       const prefill = sessionStorage.getItem('prefillReply');
@@ -49,7 +61,54 @@ function GeneratorInner() {
         sessionStorage.removeItem('prefillReply');
       }
     }
+    // Pre-fill from inbox page
+    const emailParam = searchParams.get('email');
+    if (emailParam) {
+      setOriginalEmail(decodeURIComponent(emailParam));
+    }
   }, [searchParams]);
+
+  async function handleFileUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingFile(true);
+    setError('');
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      setOriginalEmail(data.text);
+      setQuickReplies([]);
+    } catch (err) {
+      setError('File upload failed: ' + err.message);
+    } finally {
+      setUploadingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
+
+  async function handleQuickReplies() {
+    if (!originalEmail.trim()) return;
+    setLoadingQuickReplies(true);
+    setQuickReplies([]);
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'quick-replies', originalEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setQuickReplies(data.suggestions || []);
+    } catch (err) {
+      setError('Could not generate quick replies: ' + err.message);
+    } finally {
+      setLoadingQuickReplies(false);
+    }
+  }
 
   async function handleGenerate() {
     if (mode === 'generate' && !originalEmail.trim()) {
@@ -136,15 +195,31 @@ function GeneratorInner() {
   }
 
   return (
-    <div className="page-wrap" style={{ maxWidth: '1100px' }}>
+    <div className="page-wrap">
 
       {/* ── Page header & Tabs ───────────────────────────────────────── */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <h1 className="display-title" style={{ fontSize: '1.875rem', marginBottom: '1.5rem' }}>
+        <h1 className="display-title" style={{ fontSize: '1.875rem', marginBottom: '1rem' }}>
           AI Email Assistant
         </h1>
+
+        {/* ── Guest Mode Banner ──────────────────────────────────────── */}
+        {isGuest && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            padding: '0.75rem 1rem', marginBottom: '1rem',
+            background: 'rgba(139,44,57,0.06)', border: '1px solid rgba(139,44,57,0.2)',
+            borderRadius: '8px', fontSize: '0.8125rem', color: 'var(--text-muted)',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--accent)', flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span style={{ flex: 1 }}>
+              You&apos;re in <strong style={{ color: 'var(--text)' }}>Guest Mode</strong>. Replies will not be saved to history.
+              {' '}<a href="/login" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</a> to unlock history, saved templates &amp; more.
+            </span>
+          </div>
+        )}
         
-        <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
           <button 
             onClick={() => { setMode('generate'); setError(''); }}
             style={{ 
@@ -284,18 +359,67 @@ function GeneratorInner() {
           
           {mode === 'generate' && (
             <div style={{ marginBottom: '1.5rem' }}>
-              <label className="label-caps" htmlFor="original-email-gen" style={{ display: 'block', marginBottom: '1rem', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text)', textTransform: 'none', letterSpacing: 'normal' }}>
-                What's the message you're replying to?
-              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {originalEmail.trim().length > 30 && (
+                  <button
+                    type="button"
+                    onClick={handleQuickReplies}
+                    disabled={loadingQuickReplies}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.75rem', background: 'var(--accent-dim)', border: '1px solid var(--accent-border)', borderRadius: '999px', color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s ease' }}
+                  >
+                    {loadingQuickReplies ? (
+                      <><div className="spinner" style={{ width: '10px', height: '10px', borderWidth: '1.5px', borderTopColor: 'var(--accent)', borderColor: 'var(--accent-border)' }} />Analyzing...</>
+                    ) : (
+                      <><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"/></svg>Quick Replies</>
+                    )}
+                  </button>
+                )}
+                {/* File Upload Button */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingFile}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.75rem', background: 'var(--surface-raised)', border: '1px solid var(--border)', borderRadius: '999px', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s ease' }}
+                  id="btn-upload-email-file"
+                >
+                  {uploadingFile ? (
+                    <><div className="spinner" style={{ width: '10px', height: '10px', borderWidth: '1.5px', borderTopColor: 'var(--text-muted)', borderColor: 'var(--border)' }} />Uploading...</>
+                  ) : (
+                    <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload .txt/.eml</>
+                  )}
+                </button>
+                <input ref={fileInputRef} type="file" accept=".txt,.eml,text/plain" style={{ display: 'none' }} onChange={handleFileUpload} id="input-email-file" />
+              </div>
               <textarea
                 id="original-email-gen"
                 className="input-base"
                 rows={4}
                 placeholder="Paste the email you received here…"
                 value={originalEmail}
-                onChange={(e) => setOriginalEmail(e.target.value)}
+                onChange={(e) => { setOriginalEmail(e.target.value); setQuickReplies([]); }}
                 style={{ minHeight: '120px', background: 'var(--bg)', border: '1px solid var(--border)' }}
               />
+              {/* Quick Reply Pills */}
+              {quickReplies.length > 0 && (
+                <div style={{ marginTop: '0.875rem' }}>
+                  <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.625rem' }}>
+                    ⚡ Smart Quick Replies — click to use
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {quickReplies.map((qr, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="quick-reply-pill"
+                        onClick={() => { setReply([qr.body]); setCurrentVariationIndex(0); }}
+                        title={qr.body}
+                      >
+                        {qr.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -305,6 +429,7 @@ function GeneratorInner() {
               onClick={handleGenerate}
               disabled={loading}
               style={{ padding: '0.625rem 1.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+              id="btn-generate-main"
             >
               {loading ? (
                 <><span className="spinner" /> {mode === 'improve' ? 'Improving…' : 'Generating…'}</>
@@ -333,9 +458,15 @@ function GeneratorInner() {
                       <button className="btn-ghost" onClick={handleCopy} type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
                         {copied ? 'Copied' : 'Copy'}
                       </button>
-                      <button className="btn-ghost" onClick={handleSaveTemplate} type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
-                        Save
-                      </button>
+                      {isGuest ? (
+                        <button className="btn-ghost" disabled title="Sign in to save templates" type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem', opacity: 0.5, cursor: 'not-allowed' }}>
+                          Save
+                        </button>
+                      ) : (
+                        <button className="btn-ghost" onClick={handleSaveTemplate} type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
+                          Save
+                        </button>
+                      )}
                     </div>
                   </div>
                   <p style={{ fontSize: '0.9375rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
@@ -402,9 +533,15 @@ function GeneratorInner() {
                      <button className="btn-ghost" onClick={handleCopy} type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
                        {copied ? 'Copied' : 'Copy'}
                      </button>
-                     <button className="btn-ghost" onClick={handleSaveTemplate} type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
-                       Save
-                     </button>
+                     {isGuest ? (
+                        <button className="btn-ghost" disabled title="Sign in to save templates" type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem', opacity: 0.5, cursor: 'not-allowed' }}>
+                          Save
+                        </button>
+                      ) : (
+                        <button className="btn-ghost" onClick={handleSaveTemplate} type="button" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
+                          Save
+                        </button>
+                      )}
                    </div>
                 </div>
                 <div className="reply-box" style={{ background: 'transparent', border: 'none', padding: 0, flex: 1 }}>{reply[currentVariationIndex]}</div>

@@ -50,7 +50,7 @@ export default function QuickGenerate() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Paste the email content here..."
           className="input-base"
-          style={{ width: '100%', height: '100%', minHeight: '160px', padding: '1rem 1rem 1rem 2.75rem', background: '#fff', border: '1px solid var(--border-light)', borderRadius: '8px', fontSize: '0.9375rem' }}
+          style={{ width: '100%', height: '100%', minHeight: '160px', padding: '1rem 1rem 1rem 2.75rem', background: 'var(--surface-raised)', border: '1px solid var(--border-light)', borderRadius: '8px', fontSize: '0.9375rem', color: 'var(--text)' }}
         />
         <div style={{ position: 'absolute', bottom: '0.75rem', right: '1rem', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
           {email.length} / 5000
@@ -72,7 +72,7 @@ export default function QuickGenerate() {
           <select
             value={tone}
             onChange={(e) => setTone(e.target.value)}
-            style={{ padding: '0.5rem 2rem 0.5rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontSize: '0.875rem', outline: 'none' }}
+            style={{ padding: '0.5rem 2rem 0.5rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface-raised)', color: 'var(--text)', fontSize: '0.875rem', outline: 'none' }}
           >
             <option value="formal">👔 Professional</option>
             <option value="friendly">👋 Friendly</option>

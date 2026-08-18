@@ -3,7 +3,7 @@
 
 /* ── Design Tokens ────────────────────────────────────────────── */
 :root {
-  /* ── Permanent Theme: Clean Modern ─────────────────────── */
+  /* ── Light Theme (Default) ─────────────────────────────── */
   --bg:            #F9FAFB;
   --surface:       #FFFFFF;
   --surface-raised:#F3F4F6;
@@ -26,12 +26,36 @@
   --radius:     8px;
   --radius-md:  12px;
 
-  /* ── Permanent Font: Sans-Serif ─────────────── */
+  /* ── Fonts ─────────────────────────────────── */
   --font-display: 'Plus Jakarta Sans', sans-serif;
   --font-ui:      'Inter', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
 
   --card-padding: 2.25rem;
+
+  /* ── Theme Transition ───────────────────────── */
+  --theme-transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* ── Dark Mode Tokens ─────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:            #0D0F12;
+  --surface:       #161920;
+  --surface-raised:#1E2229;
+  --border:        #2A2F3A;
+  --border-light:  #1E2229;
+
+  --accent:        #C0455A;
+  --accent-hover:  #D4566B;
+  --accent-dim:    rgba(192, 69, 90, 0.12);
+  --accent-border: rgba(192, 69, 90, 0.3);
+
+  --text:          #F1F3F7;
+  --text-muted:    #8B92A5;
+  --text-dim:      #4A5168;
+
+  --success:       #34D399;
+  --success-dim:   rgba(52, 211, 153, 0.12);
 }
 
 /* ── Reset ────────────────────────────────────────────────────── */
@@ -44,6 +68,12 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   font-size: 15.5px;
+  transition: var(--theme-transition);
+}
+
+/* Smooth transitions on all themed elements */
+.surface, .desktop-sidebar, .topbar-header, .input-base, .reply-box, .btn-ghost, .modal-box {
+  transition: var(--theme-transition);
 }
 
 /* ── Scrollbar ────────────────────────────────────────────────── */
@@ -172,7 +202,7 @@ body {
 /* ── Inputs ───────────────────────────────────────────────────── */
 .input-base {
   width: 100%;
-  background: #F9F6EF;
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
@@ -182,7 +212,7 @@ body {
   padding: 0.75rem 0.875rem;
   resize: vertical;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.25s ease;
 }
 .input-base::placeholder { color: var(--text-dim); }
 .input-base:focus { border-color: var(--accent); }
@@ -325,9 +355,10 @@ body {
 
 /* ── Layout ───────────────────────────────────────────────────── */
 .page-wrap {
-  max-width: 900px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  /* Removed duplicate 2.5rem padding to avoid squeezing content */
 }
 
 /* ── Divider ──────────────────────────────────────────────────── */
@@ -349,7 +380,7 @@ body {
   padding: 1rem;
 }
 .modal-box {
-  background: #F9F6EF;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem;
@@ -369,14 +400,9 @@ body {
 /* ── Dashboard Layout ─────────────────────────────────────────── */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
   align-items: start;
-}
-@media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
 }
 @media (max-width: 640px) {
   :root {
@@ -403,6 +429,7 @@ body {
   padding: 1.5rem;
   z-index: 50;
   transition: transform 0.3s ease;
+  overflow-y: auto;
 }
 
 .main-wrapper {
@@ -441,15 +468,11 @@ body {
   margin-right: 1rem;
 }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-}
+/* Removed duplicate dashboard-grid here, auto-fit handles it globally */
 
 .dashboard-middle {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: minmax(300px, 1fr) 2fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -464,6 +487,7 @@ body {
 
 .generator-sidebar {
   width: 380px;
+  max-width: 100%;
   background: var(--surface-raised);
   border-right: 1px solid var(--border);
   padding: 2rem;
@@ -473,9 +497,6 @@ body {
 
 /* Tablet (Max 1024px) */
 @media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .dashboard-middle {
     grid-template-columns: 1fr;
   }
@@ -513,11 +534,8 @@ body {
   .topbar-header {
     padding: 0 1rem;
   }
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
   .page-wrap {
-    padding: 1rem;
+    padding: 0.5rem;
   }
   .card {
     padding: 1.25rem;
@@ -525,4 +543,165 @@ body {
   .display-title {
     font-size: 1.5rem;
   }
+}
+
+/* ── Auth Pages ───────────────────────────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 1.5rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] .auth-card {
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  color: var(--text-dim);
+  font-size: 0.8125rem;
+}
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.provider-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  margin-bottom: 0.75rem;
+}
+.provider-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+  margin-bottom: 0.75rem;
+}
+.auth-input::placeholder { color: var(--text-dim); }
+.auth-input:focus { border-color: var(--accent); }
+
+/* ── Inbox Page ───────────────────────────────────────────────── */
+.inbox-email-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.inbox-email-row:hover {
+  background: var(--surface-raised);
+}
+.inbox-email-row.unread .inbox-subject {
+  font-weight: 700;
+  color: var(--text);
+}
+.inbox-subject {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.inbox-snippet {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+}
+
+/* ── Quick Reply Pills ────────────────────────────────────────── */
+.quick-reply-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.quick-reply-pill:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+[data-theme="dark"] .quick-reply-pill {
+  color: #E07085;
+}
+[data-theme="dark"] .quick-reply-pill:hover {
+  color: #fff;
+}
+
+/* ── Theme Toggle Button ──────────────────────────────────────── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
 }

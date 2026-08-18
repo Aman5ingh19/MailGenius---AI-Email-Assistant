@@ -1,6 +1,8 @@
 import './globals.css';
 import Sidebar from '@/components/Sidebar';
 import Topbar from '@/components/Topbar';
+import Providers from '@/components/Providers';
+import { auth } from '@/auth';
 
 export const metadata = {
   title: '📧 MailGenius — AI Email Assistant',
@@ -8,19 +10,36 @@ export const metadata = {
   keywords: 'AI email, email reply generator, Gemini AI, email assistant',
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await auth();
+
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Prevent flash of wrong theme by reading localStorage before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('mg-theme') || 'light';
+                  document.documentElement.setAttribute('data-theme', t);
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="app-layout">
-        <Sidebar />
-        <div className="main-wrapper">
-          <Topbar />
-          <main className="main-content">
-            {children}
-          </main>
-        </div>
+        <Providers session={session}>
+          <Sidebar />
+          <div className="main-wrapper">
+            <Topbar />
+            <main className="main-content">
+              {children}
+            </main>
+          </div>
+        </Providers>
       </body>
     </html>
   );

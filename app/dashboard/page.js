@@ -4,6 +4,7 @@ import QuickGenerate from './QuickGenerate';
 import connectDB from '@/lib/mongodb';
 import EmailHistory from '@/lib/models/EmailHistory';
 import Template from '@/lib/models/Template';
+import { auth } from '@/auth';
 
 export const metadata = {
   title: 'Dashboard — 📧 MailGenius',
@@ -24,47 +25,55 @@ function truncate(text, max = 180) {
 }
 
 export default async function DashboardPage() {
+  const session = await auth();
+  const userId = session?.user?.id || null;
+  const userName = session?.user?.name || null;
+
   let stats = { totalReplies: 0, mostRecent: null, recentActivity: [], savedReplies: 0, repliesThisWeek: 0 };
   let dbError = null;
 
-  try {
-    await connectDB();
-    stats.totalReplies = await EmailHistory.countDocuments();
-    stats.savedReplies = await Template.countDocuments();
+  if (userId) {
+    try {
+      await connectDB();
+      const query = { userId };
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    stats.repliesThisWeek = await EmailHistory.countDocuments({ created_at: { $gte: sevenDaysAgo } });
+      stats.totalReplies = await EmailHistory.countDocuments(query);
+      stats.savedReplies = await Template.countDocuments({ userId });
 
-    const recent = await EmailHistory.find({})
-      .sort({ created_at: -1 })
-      .limit(3)
-      .lean();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      stats.repliesThisWeek = await EmailHistory.countDocuments({ ...query, created_at: { $gte: sevenDaysAgo } });
 
-    stats.mostRecent = recent[0] ? {
-      ...recent[0],
-      _id: recent[0]._id.toString(),
-      created_at: recent[0].created_at?.toISOString() ?? null,
-    } : null;
+      const recent = await EmailHistory.find(query)
+        .sort({ created_at: -1 })
+        .limit(3)
+        .lean();
 
-    stats.recentActivity = recent.map(r => ({
-      ...r,
-      _id: r._id.toString(),
-      created_at: r.created_at?.toISOString() ?? null,
-    }));
-  } catch {
-    dbError = 'Could not connect to the database. Please check your MONGODB_URI.';
+      stats.mostRecent = recent[0] ? {
+        ...recent[0],
+        _id: recent[0]._id.toString(),
+        created_at: recent[0].created_at?.toISOString() ?? null,
+      } : null;
+
+      stats.recentActivity = recent.map(r => ({
+        ...r,
+        _id: r._id.toString(),
+        created_at: r.created_at?.toISOString() ?? null,
+      }));
+    } catch {
+      dbError = 'Could not connect to the database. Please check your MONGODB_URI.';
+    }
   }
 
   const avgTimeSaved = (stats.totalReplies * 6) / 60; // 6 mins per reply
 
   return (
-    <div className="page-wrap" style={{ maxWidth: '1200px' }}>
+    <div className="page-wrap">
       {/* ── HEADER ─────────────────────────────────────────────── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
         <div>
           <h1 className="display-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '2rem' }}>
-            Welcome back! <span style={{ fontSize: '1.75rem' }}>👋</span>
+            Welcome back{userName ? `, ${userName.split(' ')[0]}` : ''}! <span style={{ fontSize: '1.75rem' }}>👋</span>
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9375rem' }}>
             Write better emails in seconds with AI.
@@ -192,6 +201,15 @@ export default async function DashboardPage() {
                 </button>
               </div>
             </>
+          ) : !userId ? (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+              <div style={{ background: 'var(--surface)', padding: '0.75rem', borderRadius: '50%', marginBottom: '1rem', color: 'var(--text-dim)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <p style={{ marginBottom: '0.75rem', fontWeight: 500, color: 'var(--text)' }}>Guest Mode</p>
+              <p style={{ marginBottom: '1.25rem' }}>Sign in to track your generation history.</p>
+              <Link href="/login" className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8125rem' }}>Sign In</Link>
+            </div>
           ) : (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.875rem' }}>
               No replies generated yet.
@@ -233,6 +251,11 @@ export default async function DashboardPage() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : !userId ? (
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 0', fontSize: '0.875rem' }}>
+            <p style={{ marginBottom: '0.5rem', fontWeight: 500, color: 'var(--text)' }}>Not signed in</p>
+            <p>Your recent activity will appear here once you create an account.</p>
           </div>
         ) : (
           <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0', fontSize: '0.875rem' }}>
