@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, User, Mail, Lock, LogIn, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, User, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -95,41 +95,73 @@ function LoginContent() {
 
   return (
     <div className="auth-page">
-      {/* Decorative ambient background glowing elements */}
+      {/* Subtle ambient background glowing accents */}
       <div className="auth-bg-glow-1" />
       <div className="auth-bg-glow-2" />
       <div className="auth-bg-grid" />
 
-      {/* Main Auth Card */}
-      <div className="auth-card" style={{ position: 'relative', zIndex: 10 }}>
-        {/* Brand */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '52px', borderRadius: '14px', background: 'var(--accent-dim)', color: 'var(--accent)', marginBottom: '1rem', border: '1px solid var(--accent-border)' }}>
-            <Sparkles className="w-7 h-7" />
+      {/* Main Compact SaaS Auth Card */}
+      <div className="auth-card">
+        {/* Brand & Logo Header */}
+        <div style={{ textAlign: 'center', marginBottom: '1.125rem' }}>
+          <div className="auth-brand-badge">
+            <Sparkles className="w-5 h-5" />
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.625rem', color: 'var(--text)', marginBottom: '0.25rem' }}>
+          <h1
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: '1.375rem',
+              color: 'var(--text)',
+              letterSpacing: '-0.02em',
+              margin: '0 0 0.2rem 0',
+              lineHeight: 1.2,
+            }}
+          >
             MailGenius
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', margin: 0 }}>
             {mode === 'login' ? 'Sign in to your account' : 'Create your free account'}
           </p>
         </div>
 
-        {/* Error/Success alerts */}
+        {/* Error / Success Alerts */}
         {error && (
-          <div className="alert-error" style={{ marginBottom: '1.25rem' }}>
+          <div
+            className="alert-error"
+            style={{
+              marginBottom: '0.875rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.8125rem',
+              borderRadius: '7px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+            }}
+          >
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
         {success && (
-          <div className="alert-success" style={{ marginBottom: '1.25rem' }}>
+          <div
+            className="alert-success"
+            style={{
+              marginBottom: '0.875rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.8125rem',
+              borderRadius: '7px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+            }}
+          >
             <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
             <span>{success}</span>
           </div>
         )}
 
-        {/* Credentials form */}
+        {/* Form Inputs */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
           {mode === 'signup' && (
             <input
@@ -142,6 +174,7 @@ function LoginContent() {
               id="input-name"
             />
           )}
+
           <input
             className="auth-input"
             type="email"
@@ -151,7 +184,8 @@ function LoginContent() {
             required
             id="input-email"
           />
-          <div style={{ position: 'relative', marginBottom: '1rem' }}>
+
+          <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
             <div style={{ position: 'relative' }}>
               <input
                 className="auth-input"
@@ -162,15 +196,15 @@ function LoginContent() {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
                 id="input-password"
-                style={{ paddingRight: '2.75rem', marginBottom: '0.25rem' }}
+                style={{ paddingRight: '2.5rem', marginBottom: 0 }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 style={{
                   position: 'absolute',
-                  right: '0.875rem',
-                  top: '40%',
+                  right: '0.65rem',
+                  top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none',
                   border: 'none',
@@ -179,7 +213,8 @@ function LoginContent() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  padding: '0.25rem',
+                  padding: '0.2rem',
+                  borderRadius: '4px',
                 }}
                 title={showPassword ? 'Hide password' : 'Show password'}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
@@ -188,35 +223,64 @@ function LoginContent() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+
             {mode === 'login' && (
               <div style={{ textAlign: 'right', marginTop: '0.25rem' }}>
-                <Link href="/forgot-password" style={{ color: 'var(--accent)', fontSize: '0.8125rem', textDecoration: 'none', fontWeight: 500 }}>
+                <Link
+                  href="/forgot-password"
+                  style={{
+                    color: 'var(--accent)',
+                    fontSize: '0.75rem',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                  }}
+                >
                   Forgot password?
                 </Link>
               </div>
             )}
           </div>
+
           <button
             type="submit"
             className="btn-primary"
             disabled={loading}
             id="btn-submit-credentials"
-            style={{ width: '100%', padding: '0.75rem', fontSize: '0.9375rem', justifyContent: 'center' }}
+            style={{
+              width: '100%',
+              padding: '0.55rem 1rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              height: '38px',
+              borderRadius: '7px',
+              justifyContent: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+            }}
           >
             {loading ? (
-              <><div className="spinner" /> {mode === 'login' ? 'Signing in...' : 'Creating account...'}</>
+              <><div className="spinner" style={{ width: '14px', height: '14px' }} /> {mode === 'login' ? 'Signing in...' : 'Creating account...'}</>
             ) : (
               mode === 'login' ? 'Sign In' : 'Create Account'
             )}
           </button>
         </form>
 
-        {/* Toggle mode */}
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+        {/* Toggle Mode (Sign In / Sign Up) */}
+        <p style={{ textAlign: 'center', marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
           {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
           <button
             onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess(''); }}
-            style={{ background: 'none', border: 'none', color: 'var(--accent)', fontWeight: 600, cursor: 'pointer', fontSize: '0.875rem' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--accent)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '0.8125rem',
+              padding: 0,
+            }}
             id="btn-toggle-mode"
           >
             {mode === 'login' ? 'Sign up' : 'Sign in'}
@@ -224,9 +288,11 @@ function LoginContent() {
         </p>
 
         {/* ── Guest Divider ─────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '1.5rem 0 1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', margin: '0.875rem 0 0.625rem' }}>
           <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>or try without an account</span>
+          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', whiteSpace: 'nowrap', textTransform: 'lowercase' }}>
+            or try without an account
+          </span>
           <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
         </div>
 
@@ -236,25 +302,71 @@ function LoginContent() {
           id="btn-guest-login"
           disabled={loading}
           style={{
-            width: '100%', padding: '0.75rem', background: 'transparent',
-            border: '1px dashed var(--border)', borderRadius: '8px',
-            color: 'var(--text-muted)', fontSize: '0.9375rem', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.625rem',
-            fontFamily: 'var(--font-ui)', transition: 'all 0.15s ease',
+            width: '100%',
+            height: '36px',
+            padding: '0.5rem 0.875rem',
+            background: 'transparent',
+            border: '1px solid var(--border)',
+            borderRadius: '7px',
+            color: 'var(--text-muted)',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.45rem',
+            fontFamily: 'var(--font-ui)',
+            transition: 'all 0.15s ease',
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--text)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = 'var(--accent)';
+            e.currentTarget.style.color = 'var(--accent)';
+            e.currentTarget.style.background = 'var(--accent-dim)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.color = 'var(--text-muted)';
+            e.currentTarget.style.background = 'transparent';
+          }}
         >
-          <User className="w-4 h-4" />
+          <User className="w-3.5 h-3.5" />
           Continue as Guest
         </button>
-        <p style={{ textAlign: 'center', marginTop: '0.625rem', fontSize: '0.75rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+
+        <p
+          style={{
+            textAlign: 'center',
+            marginTop: '0.375rem',
+            marginBottom: 0,
+            fontSize: '0.6875rem',
+            color: 'var(--text-dim)',
+            lineHeight: 1.35,
+          }}
+        >
           Guest mode: Generate replies freely. History &amp; saved templates require an account.
         </p>
 
         {/* ── Card Footer: MailGenius — Built by Aman Singh ── */}
-        <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
+        <div
+          style={{
+            marginTop: '0.875rem',
+            paddingTop: '0.625rem',
+            borderTop: '1px solid var(--border-light)',
+            textAlign: 'center',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '0.75rem',
+              color: 'var(--text-muted)',
+              fontWeight: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              margin: 0,
+            }}
+          >
             <span style={{ fontWeight: 700, color: 'var(--text)' }}>MailGenius</span>
             <span style={{ color: 'var(--text-dim)' }}>—</span>
             <span>Built by</span>
@@ -268,7 +380,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="auth-page"><div className="spinner" /></div>}>
       <LoginContent />
     </Suspense>
   );
