@@ -24,7 +24,7 @@ function ResetPasswordForm() {
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>Invalid or missing reset token. Please request a new password reset link.</span>
         </div>
-        <Link href="/forgot-password" style={{ color: '#0284C7', textDecoration: 'none', fontWeight: 600, fontSize: '0.8125rem' }}>
+        <Link href="/forgot-password" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600, fontSize: '0.8125rem' }}>
           Go to Forgot Password
         </Link>
       </div>
@@ -107,7 +107,7 @@ function ResetPasswordForm() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#94A3B8',
+                color: 'var(--text-dim)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -143,7 +143,7 @@ function ResetPasswordForm() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#94A3B8',
+                color: 'var(--text-dim)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -165,8 +165,6 @@ function ResetPasswordForm() {
               padding: '0.55rem 1rem',
               fontSize: '0.875rem',
               fontWeight: 600,
-              background: '#0284C7',
-              color: '#FFFFFF',
               borderRadius: '8px',
               justifyContent: 'center',
               display: 'flex',
@@ -190,26 +188,26 @@ export default function ResetPasswordPage() {
       <div className="auth-card">
         <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
           <div className="auth-brand-badge">
-            <Sparkles className="w-5 h-5 text-[#0284C7]" />
+            <Sparkles className="w-5 h-5" />
           </div>
           <h1
             style={{
               fontFamily: 'var(--font-display)',
               fontSize: '1.375rem',
               fontWeight: 800,
-              color: '#0F172A',
+              color: 'var(--text)',
               margin: '0 0 0.25rem 0',
               lineHeight: 1.2,
             }}
           >
             Create New Password
           </h1>
-          <p style={{ color: '#64748B', fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', margin: 0 }}>
             Enter your new password credentials below.
           </p>
         </div>
 
-        <Suspense fallback={<div style={{ textAlign: 'center', color: '#64748B', fontSize: '0.875rem' }}>Loading...</div>}>
+        <Suspense fallback={<div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading...</div>}>
           <ResetPasswordForm />
         </Suspense>
 
@@ -218,14 +216,14 @@ export default function ResetPasswordPage() {
           style={{
             marginTop: '1rem',
             paddingTop: '0.625rem',
-            borderTop: '1px solid #E2E8F0',
+            borderTop: '1px solid var(--border-light)',
             textAlign: 'center',
           }}
         >
           <p
             style={{
               fontSize: '0.75rem',
-              color: '#64748B',
+              color: 'var(--text-muted)',
               fontWeight: 500,
               display: 'inline-flex',
               alignItems: 'center',
@@ -233,10 +231,10 @@ export default function ResetPasswordPage() {
               margin: 0,
             }}
           >
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>MailGenius</span>
-            <span style={{ color: '#94A3B8' }}>—</span>
+            <span style={{ fontWeight: 700, color: 'var(--text)' }}>MailGenius</span>
+            <span style={{ color: 'var(--text-dim)' }}>—</span>
             <span>Built by</span>
-            <strong style={{ color: '#0284C7', fontWeight: 700 }}>Aman Singh</strong>
+            <strong style={{ color: 'var(--accent)', fontWeight: 700 }}>Aman Singh</strong>
           </p>
         </div>
       </div>

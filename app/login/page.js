@@ -106,7 +106,7 @@ function LoginContent() {
 
   return (
     <div className="auth-page">
-      {/* ── Background Decorative Vector Layer (Exact match to reference) ── */}
+      {/* ── Background Decorative Vector Layer ── */}
       <div className="auth-bg-decor" aria-hidden="true">
         {/* Ambient SVG Flowing Waves & Bottom-Left Concentric Arcs */}
         <svg
@@ -114,22 +114,22 @@ function LoginContent() {
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Bottom Left Gradient Waves */}
-          <circle cx="2%" cy="98%" r="480" fill="rgba(224, 242, 254, 0.45)" />
-          <circle cx="2%" cy="98%" r="320" fill="rgba(186, 230, 253, 0.35)" />
-          <circle cx="2%" cy="98%" r="180" fill="rgba(147, 197, 253, 0.25)" />
+          <circle cx="2%" cy="98%" r="480" fill="var(--auth-wave-1, rgba(224, 242, 254, 0.45))" />
+          <circle cx="2%" cy="98%" r="320" fill="var(--auth-wave-2, rgba(186, 230, 253, 0.35))" />
+          <circle cx="2%" cy="98%" r="180" fill="var(--auth-wave-3, rgba(147, 197, 253, 0.25))" />
 
           {/* Flowing Light Curved Lines across background */}
           <path
             d="M-50,220 C200,160 350,380 650,280 C950,180 1100,420 1450,320"
             fill="none"
-            stroke="rgba(186, 230, 253, 0.45)"
+            stroke="var(--auth-line-1, rgba(186, 230, 253, 0.45))"
             strokeWidth="1.5"
             strokeDasharray="4 4"
           />
           <path
             d="M-50,380 C250,300 400,520 750,440 C1100,360 1200,560 1550,460"
             fill="none"
-            stroke="rgba(191, 219, 254, 0.35)"
+            stroke="var(--auth-line-2, rgba(191, 219, 254, 0.35))"
             strokeWidth="1.2"
           />
         </svg>
@@ -149,7 +149,7 @@ function LoginContent() {
           className="auth-floating-badge"
           style={{ top: '42%', left: '8%', transform: 'rotate(-4deg)' }}
         >
-          <Mail className="w-5 h-5 text-[#93C5FD]" />
+          <Mail className="w-5 h-5" />
         </div>
 
         {/* Right Floating Translucent Envelope Card */}
@@ -157,7 +157,7 @@ function LoginContent() {
           className="auth-floating-badge"
           style={{ bottom: '26%', right: '9%', transform: 'rotate(5deg)' }}
         >
-          <Mail className="w-5 h-5 text-[#93C5FD]" />
+          <Mail className="w-5 h-5" />
         </div>
 
         {/* Bottom Right Paper Airplane */}
@@ -166,23 +166,23 @@ function LoginContent() {
             position: 'absolute',
             bottom: '12%',
             right: '18%',
-            color: '#93C5FD',
+            color: 'var(--accent)',
             transform: 'rotate(-25deg)',
-            opacity: 0.85,
+            opacity: 0.7,
           }}
         >
           <Send className="w-6 h-6" />
         </div>
 
         {/* 4-Point Sparkle Stars */}
-        <div style={{ position: 'absolute', top: '18%', left: '18%', color: '#93C5FD', opacity: 0.75 }}>
+        <div style={{ position: 'absolute', top: '18%', left: '18%', color: 'var(--accent)', opacity: 0.75 }}>
           <Sparkles className="w-4 h-4" />
         </div>
-        <div style={{ position: 'absolute', top: '56%', right: '19%', color: '#93C5FD', opacity: 0.75 }}>
+        <div style={{ position: 'absolute', top: '56%', right: '19%', color: 'var(--accent)', opacity: 0.75 }}>
           <Sparkles className="w-4 h-4" />
         </div>
 
-        {/* Dot Matrix Grids (Top-Left, Bottom-Left, Top-Right) */}
+        {/* Dot Matrix Grids */}
         <div
           style={{
             position: 'absolute',
@@ -195,7 +195,7 @@ function LoginContent() {
           }}
         >
           {Array.from({ length: 25 }).map((_, i) => (
-            <div key={`dtl-${i}`} style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#60A5FA' }} />
+            <div key={`dtl-${i}`} style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--accent)' }} />
           ))}
         </div>
 
@@ -211,7 +211,7 @@ function LoginContent() {
           }}
         >
           {Array.from({ length: 25 }).map((_, i) => (
-            <div key={`dbl-${i}`} style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#60A5FA' }} />
+            <div key={`dbl-${i}`} style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--accent)' }} />
           ))}
         </div>
 
@@ -227,24 +227,24 @@ function LoginContent() {
           }}
         >
           {Array.from({ length: 25 }).map((_, i) => (
-            <div key={`dtr-${i}`} style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#60A5FA' }} />
+            <div key={`dtr-${i}`} style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--accent)' }} />
           ))}
         </div>
       </div>
 
-      {/* ── Main Auth Card (Clean, Compact, Production-Ready) ── */}
+      {/* ── Main Auth Card (Clean, Compact, High-Contrast in Light & Dark Mode) ── */}
       <div className="auth-card">
         {/* Brand & Logo Header */}
         <div style={{ textAlign: 'center', marginBottom: '1.125rem' }}>
           <div className="auth-brand-badge">
-            <Sparkles className="w-5 h-5 text-[#0284C7]" />
+            <Sparkles className="w-5 h-5" />
           </div>
           <h1
             style={{
               fontFamily: 'var(--font-display)',
               fontWeight: 800,
               fontSize: '1.4rem',
-              color: '#0F172A',
+              color: 'var(--text)',
               letterSpacing: '-0.02em',
               margin: '0 0 0.2rem 0',
               lineHeight: 1.2,
@@ -252,7 +252,7 @@ function LoginContent() {
           >
             MailGenius
           </h1>
-          <p style={{ color: '#64748B', fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', margin: 0 }}>
             {mode === 'login' ? 'Sign in to your account' : 'Create your free account'}
           </p>
         </div>
@@ -350,7 +350,7 @@ function LoginContent() {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: '#94A3B8',
+                  color: 'var(--text-dim)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -369,7 +369,7 @@ function LoginContent() {
                 <Link
                   href="/forgot-password"
                   style={{
-                    color: '#0284C7',
+                    color: 'var(--accent)',
                     fontSize: '0.75rem',
                     textDecoration: 'none',
                     fontWeight: 500,
@@ -393,14 +393,11 @@ function LoginContent() {
               padding: '0.55rem 1rem',
               fontSize: '0.875rem',
               fontWeight: 600,
-              background: '#0284C7',
-              color: '#FFFFFF',
               borderRadius: '8px',
               justifyContent: 'center',
               display: 'flex',
               alignItems: 'center',
               gap: '0.45rem',
-              border: 'none',
               cursor: 'pointer',
             }}
           >
@@ -413,14 +410,14 @@ function LoginContent() {
         </form>
 
         {/* Toggle Mode (Sign In / Sign Up) */}
-        <p style={{ textAlign: 'center', marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: '#64748B' }}>
+        <p style={{ textAlign: 'center', marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
           {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
           <button
             onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess(''); }}
             style={{
               background: 'none',
               border: 'none',
-              color: '#0284C7',
+              color: 'var(--accent)',
               fontWeight: 600,
               cursor: 'pointer',
               fontSize: '0.8125rem',
@@ -434,11 +431,11 @@ function LoginContent() {
 
         {/* ── Guest Divider ─────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', margin: '0.875rem 0 0.625rem' }}>
-          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
-          <span style={{ fontSize: '0.6875rem', color: '#94A3B8', whiteSpace: 'nowrap', textTransform: 'lowercase' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
+          <span style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', whiteSpace: 'nowrap', textTransform: 'lowercase' }}>
             or try without an account
           </span>
-          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
         </div>
 
         {/* Guest Login Button */}
@@ -450,10 +447,10 @@ function LoginContent() {
             width: '100%',
             height: '36px',
             padding: '0.5rem 0.875rem',
-            background: '#FFFFFF',
-            border: '1px solid #E2E8F0',
+            background: 'var(--surface-raised)',
+            border: '1px solid var(--border)',
             borderRadius: '8px',
-            color: '#334155',
+            color: 'var(--text)',
             fontSize: '0.8125rem',
             fontWeight: 500,
             cursor: 'pointer',
@@ -465,14 +462,14 @@ function LoginContent() {
             transition: 'all 0.15s ease',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.borderColor = '#0284C7';
-            e.currentTarget.style.color = '#0284C7';
-            e.currentTarget.style.background = '#F0F9FF';
+            e.currentTarget.style.borderColor = 'var(--accent)';
+            e.currentTarget.style.color = 'var(--accent)';
+            e.currentTarget.style.background = 'var(--accent-dim)';
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.borderColor = '#E2E8F0';
-            e.currentTarget.style.color = '#334155';
-            e.currentTarget.style.background = '#FFFFFF';
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.color = 'var(--text)';
+            e.currentTarget.style.background = 'var(--surface-raised)';
           }}
         >
           <User className="w-3.5 h-3.5" />
@@ -485,7 +482,7 @@ function LoginContent() {
             marginTop: '0.375rem',
             marginBottom: 0,
             fontSize: '0.6875rem',
-            color: '#94A3B8',
+            color: 'var(--text-dim)',
             lineHeight: 1.35,
           }}
         >
@@ -497,14 +494,14 @@ function LoginContent() {
           style={{
             marginTop: '0.875rem',
             paddingTop: '0.625rem',
-            borderTop: '1px solid #E2E8F0',
+            borderTop: '1px solid var(--border-light)',
             textAlign: 'center',
           }}
         >
           <p
             style={{
               fontSize: '0.75rem',
-              color: '#64748B',
+              color: 'var(--text-muted)',
               fontWeight: 500,
               display: 'inline-flex',
               alignItems: 'center',
@@ -512,10 +509,10 @@ function LoginContent() {
               margin: 0,
             }}
           >
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>MailGenius</span>
-            <span style={{ color: '#94A3B8' }}>—</span>
+            <span style={{ fontWeight: 700, color: 'var(--text)' }}>MailGenius</span>
+            <span style={{ color: 'var(--text-dim)' }}>—</span>
             <span>Built by</span>
-            <strong style={{ color: '#0284C7', fontWeight: 700 }}>Aman Singh</strong>
+            <strong style={{ color: 'var(--accent)', fontWeight: 700 }}>Aman Singh</strong>
           </p>
         </div>
       </div>

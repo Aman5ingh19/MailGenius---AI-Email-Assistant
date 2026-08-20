@@ -41,21 +41,21 @@ export default function ForgotPasswordPage() {
       <div className="auth-card">
         <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
           <div className="auth-brand-badge">
-            <Sparkles className="w-5 h-5 text-[#0284C7]" />
+            <Sparkles className="w-5 h-5" />
           </div>
           <h1
             style={{
               fontFamily: 'var(--font-display)',
               fontSize: '1.375rem',
               fontWeight: 800,
-              color: '#0F172A',
+              color: 'var(--text)',
               margin: '0 0 0.25rem 0',
               lineHeight: 1.2,
             }}
           >
             Reset Password
           </h1>
-          <p style={{ color: '#64748B', fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', margin: 0 }}>
             Enter your email to receive a recovery link.
           </p>
         </div>
@@ -121,8 +121,6 @@ export default function ForgotPasswordPage() {
                 padding: '0.55rem 1rem',
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                background: '#0284C7',
-                color: '#FFFFFF',
                 borderRadius: '8px',
                 justifyContent: 'center',
                 display: 'flex',
@@ -144,7 +142,7 @@ export default function ForgotPasswordPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.35rem',
-              color: '#0284C7',
+              color: 'var(--accent)',
               textDecoration: 'none',
               fontSize: '0.8125rem',
               fontWeight: 600,
@@ -159,14 +157,14 @@ export default function ForgotPasswordPage() {
           style={{
             marginTop: '1rem',
             paddingTop: '0.625rem',
-            borderTop: '1px solid #E2E8F0',
+            borderTop: '1px solid var(--border-light)',
             textAlign: 'center',
           }}
         >
           <p
             style={{
               fontSize: '0.75rem',
-              color: '#64748B',
+              color: 'var(--text-muted)',
               fontWeight: 500,
               display: 'inline-flex',
               alignItems: 'center',
@@ -174,10 +172,10 @@ export default function ForgotPasswordPage() {
               margin: 0,
             }}
           >
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>MailGenius</span>
-            <span style={{ color: '#94A3B8' }}>—</span>
+            <span style={{ fontWeight: 700, color: 'var(--text)' }}>MailGenius</span>
+            <span style={{ color: 'var(--text-dim)' }}>—</span>
             <span>Built by</span>
-            <strong style={{ color: '#0284C7', fontWeight: 700 }}>Aman Singh</strong>
+            <strong style={{ color: 'var(--accent)', fontWeight: 700 }}>Aman Singh</strong>
           </p>
         </div>
       </div>
