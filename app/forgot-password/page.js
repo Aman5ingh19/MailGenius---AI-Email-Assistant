@@ -38,76 +38,146 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-bg-glow-1" />
-      <div className="auth-bg-glow-2" />
-      <div className="auth-bg-grid" />
-
-      <div className="auth-card" style={{ maxWidth: '440px', width: '100%', position: 'relative', zIndex: 10 }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ color: 'var(--accent)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
-              <Sparkles className="w-6 h-6" />
-            </div>
+      <div className="auth-card">
+        <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+          <div className="auth-brand-badge">
+            <Sparkles className="w-5 h-5 text-[#0284C7]" />
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--text)' }}>
+          <h1
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1.375rem',
+              fontWeight: 800,
+              color: '#0F172A',
+              margin: '0 0 0.25rem 0',
+              lineHeight: 1.2,
+            }}
+          >
             Reset Password
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9375rem', marginTop: '0.5rem' }}>
-            Enter your email to receive a secure password reset link.
+          <p style={{ color: '#64748B', fontSize: '0.8125rem', margin: 0 }}>
+            Enter your email to receive a recovery link.
           </p>
         </div>
 
         {error && (
-          <div className="alert-error" style={{ marginBottom: '1.5rem' }}>
+          <div
+            className="alert-error"
+            style={{
+              marginBottom: '0.875rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.8125rem',
+              borderRadius: '7px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+            }}
+          >
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
+
         {message && (
-          <div className="alert-success" style={{ marginBottom: '1.5rem' }}>
+          <div
+            className="alert-success"
+            style={{
+              marginBottom: '0.875rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.8125rem',
+              borderRadius: '7px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+            }}
+          >
             <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
             <span>{message}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text)' }}>Email Address</label>
-            <input
-              type="email"
-              required
-              className="input-base"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              style={{ width: '100%', padding: '0.875rem 1rem' }}
-            />
-          </div>
+        {!message && (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+            <div className="auth-input-wrapper" style={{ marginBottom: '0.875rem' }}>
+              <Mail className="w-4 h-4 auth-input-icon" />
+              <input
+                type="email"
+                required
+                className="auth-input"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading || !email}
-            className="btn-primary"
-            style={{ width: '100%', padding: '0.875rem', fontSize: '1rem' }}
+            <button
+              type="submit"
+              disabled={loading || !email}
+              className="btn-primary"
+              style={{
+                width: '100%',
+                height: '38px',
+                padding: '0.55rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                background: '#0284C7',
+                color: '#FFFFFF',
+                borderRadius: '8px',
+                justifyContent: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              {loading ? <><div className="spinner" style={{ width: '14px', height: '14px', borderColor: 'rgba(255,255,255,0.3)', borderTopColor: '#fff' }} /> Sending Link...</> : 'Send Reset Link'}
+            </button>
+          </form>
+        )}
+
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <Link
+            href="/login"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              color: '#0284C7',
+              textDecoration: 'none',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
           >
-            {loading ? <><div className="spinner" /> Sending link...</> : 'Send Reset Link'}
-          </button>
-        </form>
-
-        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-          <Link href="/login" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.9375rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-            <ArrowLeft className="w-4 h-4" /> Back to login
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Sign In
           </Link>
         </div>
 
         {/* ── Card Footer: MailGenius — Built by Aman Singh ── */}
-        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
-            <span style={{ fontWeight: 700, color: 'var(--text)' }}>MailGenius</span>
-            <span style={{ color: 'var(--text-dim)' }}>—</span>
+        <div
+          style={{
+            marginTop: '1rem',
+            paddingTop: '0.625rem',
+            borderTop: '1px solid #E2E8F0',
+            textAlign: 'center',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '0.75rem',
+              color: '#64748B',
+              fontWeight: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              margin: 0,
+            }}
+          >
+            <span style={{ fontWeight: 700, color: '#0F172A' }}>MailGenius</span>
+            <span style={{ color: '#94A3B8' }}>—</span>
             <span>Built by</span>
-            <strong style={{ color: 'var(--accent)', fontWeight: 700 }}>Aman Singh</strong>
+            <strong style={{ color: '#0284C7', fontWeight: 700 }}>Aman Singh</strong>
           </p>
         </div>
       </div>
