@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Sparkles, User, Mail, Lock, LogIn, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -12,60 +13,101 @@ function LoginContent() {
   const errorParam = searchParams.get('error');
 
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
-  const [loading, setLoading] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState(
     errorParam === 'OAuthAccountNotLinked'
       ? 'This email is linked to a different provider. Try signing in with the original method.'
-      : errorParam
-        ? 'An authentication error occurred. Please try again.'
-        : ''
+      : errorParam === 'CredentialsSignin'
+        ? 'Invalid email or password.'
+        : errorParam && errorParam !== 'Configuration'
+          ? 'An authentication error occurred. Please try again.'
+          : ''
   );
   const [success, setSuccess] = useState('');
 
-  async function handleOAuth(provider) {
-    setLoading(provider);
-    setError('');
-    await signIn(provider, { callbackUrl });
-  }
-
-  async function handleCredentials(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setLoading('credentials');
+    setLoading(true);
     setError('');
     setSuccess('');
 
-    const res = await signIn('credentials', {
-      email: formData.email,
-      password: formData.password,
-      name: formData.name,
-      isSignup: mode === 'signup' ? 'true' : 'false',
-      redirect: false,
-    });
+    const email = formData.email.trim().toLowerCase();
+    const password = formData.password;
+    const name = formData.name.trim();
 
-    setLoading(null);
-
-    if (res?.error) {
-      setError(res.error);
-    } else {
+    try {
       if (mode === 'signup') {
-        setSuccess('Account created! Redirecting...');
+        // 1. Dedicated Registration Endpoint
+        const regRes = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const regData = await regRes.json();
+
+        if (!regRes.ok) {
+          setError(regData.error || 'Failed to create account.');
+          setLoading(false);
+          return;
+        }
+
+        // 2. Automatically sign in after signup
+        setSuccess('Account created! Signing you in...');
+        const authRes = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (authRes?.error) {
+          setError('Account created, but sign in failed. Please switch to Sign In.');
+          setLoading(false);
+          return;
+        }
+
+        router.push(callbackUrl);
+        router.refresh();
+      } else {
+        // Standard Sign In
+        const authRes = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (authRes?.error || !authRes?.ok) {
+          setError('Invalid email or password. Please check your credentials.');
+          setLoading(false);
+          return;
+        }
+
+        setSuccess('Signed in successfully! Redirecting...');
+        router.push(callbackUrl);
+        router.refresh();
       }
-      router.push(callbackUrl);
+    } catch (err) {
+      setError(err.message || 'An unexpected network error occurred.');
+      setLoading(false);
     }
   }
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
+      {/* Decorative ambient background glowing elements */}
+      <div className="auth-bg-glow-1" />
+      <div className="auth-bg-glow-2" />
+      <div className="auth-bg-grid" />
+
+      {/* Main Auth Card */}
+      <div className="auth-card" style={{ position: 'relative', zIndex: 10 }}>
         {/* Brand */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '52px', borderRadius: '14px', background: 'var(--accent-dim)', color: 'var(--accent)', marginBottom: '1rem' }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" />
-            </svg>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '52px', borderRadius: '14px', background: 'var(--accent-dim)', color: 'var(--accent)', marginBottom: '1rem', border: '1px solid var(--accent-border)' }}>
+            <Sparkles className="w-7 h-7" />
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.5rem', color: 'var(--text)', marginBottom: '0.25rem' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.625rem', color: 'var(--text)', marginBottom: '0.25rem' }}>
             MailGenius
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
@@ -75,18 +117,20 @@ function LoginContent() {
 
         {/* Error/Success alerts */}
         {error && (
-          <div style={{ padding: '0.75rem 1rem', background: 'rgba(192,69,90,0.1)', border: '1px solid rgba(192,69,90,0.3)', borderRadius: '8px', color: 'var(--accent)', fontSize: '0.875rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            {error}
+          <div className="alert-error" style={{ marginBottom: '1.25rem' }}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
           </div>
         )}
         {success && (
-          <div style={{ padding: '0.75rem 1rem', background: 'var(--success-dim)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '8px', color: 'var(--success)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
-            {success}
+          <div className="alert-success" style={{ marginBottom: '1.25rem' }}>
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+            <span>{success}</span>
           </div>
         )}
 
         {/* Credentials form */}
-        <form onSubmit={handleCredentials} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
           {mode === 'signup' && (
             <input
               className="auth-input"
@@ -108,18 +152,44 @@ function LoginContent() {
             id="input-email"
           />
           <div style={{ position: 'relative', marginBottom: '1rem' }}>
-            <input
-              className="auth-input"
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-              id="input-password"
-              style={{ marginBottom: '0.25rem' }}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                className="auth-input"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password (minimum 6 characters)"
+                minLength={6}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+                id="input-password"
+                style={{ paddingRight: '2.75rem', marginBottom: '0.25rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: '0.875rem',
+                  top: '40%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.25rem',
+                }}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                id="btn-toggle-password-visibility"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
             {mode === 'login' && (
-              <div style={{ textAlign: 'right' }}>
+              <div style={{ textAlign: 'right', marginTop: '0.25rem' }}>
                 <Link href="/forgot-password" style={{ color: 'var(--accent)', fontSize: '0.8125rem', textDecoration: 'none', fontWeight: 500 }}>
                   Forgot password?
                 </Link>
@@ -129,11 +199,11 @@ function LoginContent() {
           <button
             type="submit"
             className="btn-primary"
-            disabled={!!loading}
+            disabled={loading}
             id="btn-submit-credentials"
             style={{ width: '100%', padding: '0.75rem', fontSize: '0.9375rem', justifyContent: 'center' }}
           >
-            {loading === 'credentials' ? (
+            {loading ? (
               <><div className="spinner" /> {mode === 'login' ? 'Signing in...' : 'Creating account...'}</>
             ) : (
               mode === 'login' ? 'Sign In' : 'Create Account'
@@ -164,7 +234,7 @@ function LoginContent() {
         <button
           onClick={() => router.push('/generator')}
           id="btn-guest-login"
-          disabled={!!loading}
+          disabled={loading}
           style={{
             width: '100%', padding: '0.75rem', background: 'transparent',
             border: '1px dashed var(--border)', borderRadius: '8px',
@@ -175,14 +245,22 @@ function LoginContent() {
           onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--text)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
+          <User className="w-4 h-4" />
           Continue as Guest
         </button>
         <p style={{ textAlign: 'center', marginTop: '0.625rem', fontSize: '0.75rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
-          Guest mode: Generate replies freely. History & saved templates require an account.
+          Guest mode: Generate replies freely. History &amp; saved templates require an account.
         </p>
+
+        {/* ── Card Footer: MailGenius — Built by Aman Singh ── */}
+        <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
+            <span style={{ fontWeight: 700, color: 'var(--text)' }}>MailGenius</span>
+            <span style={{ color: 'var(--text-dim)' }}>—</span>
+            <span>Built by</span>
+            <strong style={{ color: 'var(--accent)', fontWeight: 700 }}>Aman Singh</strong>
+          </p>
+        </div>
       </div>
     </div>
   );

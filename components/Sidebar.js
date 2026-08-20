@@ -3,283 +3,311 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { useState } from 'react';
+import {
+  Sparkles,
+  LayoutDashboard,
+  Send,
+  History,
+  Bookmark,
+  Settings,
+  HelpCircle,
+  Info,
+  LogOut,
+  LogIn,
+  Lock,
+} from 'lucide-react';
 
-const navLinks = [
-  {
-    href: '/dashboard',
-    label: 'Dashboard',
-    protected: false,
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-  },
-
-  {
-    href: '/generator',
-    label: 'Generate Reply',
-    protected: false,
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-  },
-  {
-    href: '/history',
-    label: 'History',
-    protected: true,
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-  },
-  {
-    href: '/saved',
-    label: 'Saved',
-    protected: true,
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-  },
+const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresAuth: false },
+  { href: '/generator', label: 'Generate Reply', icon: Send, requiresAuth: false },
+  { href: '/history',   label: 'History',        icon: History, requiresAuth: true  },
+  { href: '/saved',     label: 'Saved',          icon: Bookmark, requiresAuth: true },
 ];
-
-const LockIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.45, flexShrink: 0 }}>
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-);
-
-// Collapsible sidebar item
-function CollapseItem({ label, icon, children }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        id={`sidebar-${label.toLowerCase().replace(/\s+/g, '-')}`}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          padding: '0.6875rem 1rem',
-          borderRadius: '8px',
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--text-muted)',
-          fontWeight: 500,
-          fontSize: '0.9375rem',
-          cursor: 'pointer',
-          fontFamily: 'var(--font-ui)',
-          transition: 'background 0.15s ease',
-          textAlign: 'left',
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-raised)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-        aria-expanded={open}
-      >
-        {icon}
-        <span style={{ flex: 1 }}>{label}</span>
-        <svg
-          width="14" height="14" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2"
-          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease', flexShrink: 0 }}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
-
-      {/* Collapsible panel */}
-      <div style={{
-        overflow: 'hidden',
-        maxHeight: open ? '500px' : '0',
-        transition: 'max-height 0.3s ease',
-      }}>
-        <div style={{
-          margin: '0.25rem 0.5rem 0.75rem 0.5rem',
-          padding: '1rem',
-          background: 'var(--surface-raised)',
-          borderRadius: '8px',
-          border: '1px solid var(--border-light)',
-          fontSize: '0.8125rem',
-          color: 'var(--text-muted)',
-          lineHeight: 1.6,
-        }}>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const user = session?.user;
-
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : '?';
+  const isGuest = !session?.user;
 
   return (
-    <aside className="desktop-sidebar">
-      {/* Brand */}
-      <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', marginBottom: '2.5rem' }}>
-        <div style={{ color: 'var(--accent)' }}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" /></svg>
-        </div>
-        <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--text)', lineHeight: 1 }}>
-            MailGenius
-          </h1>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
-            AI Email Assistant
-          </p>
-        </div>
-      </Link>
+    <aside className="desktop-sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* ── Brand Header ────────────────────────────────────────────── */}
+      <div style={{ paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-light)', marginBottom: '1.5rem' }}>
+        <Link
+          href="/dashboard"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            textDecoration: 'none',
+            color: 'inherit',
+          }}
+        >
+          <div
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'var(--accent-gradient)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#FFFFFF',
+              boxShadow: 'var(--accent-glow)',
+              flexShrink: 0,
+            }}
+          >
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <span
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 800,
+                fontSize: '1.25rem',
+                letterSpacing: '-0.03em',
+                color: 'var(--text)',
+                display: 'block',
+                lineHeight: 1.1,
+              }}
+            >
+              MailGenius
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: '0.6875rem',
+                color: 'var(--text-muted)',
+                fontWeight: 500,
+                letterSpacing: '0.02em',
+              }}
+            >
+              AI Email Assistant
+            </span>
+          </div>
+        </Link>
+      </div>
 
-      {/* Main Nav */}
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', marginBottom: '2rem' }}>
-        {navLinks.map(({ href, label, icon, protected: isProtected }) => {
-          const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
-          const isLocked = isProtected && !user;
+      {/* ── Main Navigation Links ──────────────────────────────────── */}
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', flex: 1 }}>
+        <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 0.75rem 0.25rem' }}>
+          Menu
+        </div>
+
+        {NAV_ITEMS.map(({ href, label, icon: Icon, requiresAuth }) => {
+          const isActive = pathname === href;
+          const isLocked = isGuest && requiresAuth;
+
           return (
             <Link
               key={href}
-              href={isLocked ? '/login' : href}
-              title={isLocked ? 'Sign in to access ' + label : label}
+              href={href}
+              id={`nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.6875rem 1rem',
+                justifyContent: 'space-between',
+                padding: '0.625rem 0.875rem',
                 borderRadius: '8px',
-                background: isActive ? 'var(--accent)' : 'transparent',
-                color: isActive ? '#fff' : isLocked ? 'var(--text-dim)' : 'var(--text-muted)',
                 textDecoration: 'none',
+                fontFamily: 'var(--font-ui)',
+                fontSize: '0.875rem',
                 fontWeight: isActive ? 600 : 500,
-                fontSize: '0.9375rem',
+                color: isActive ? 'var(--accent)' : isLocked ? 'var(--text-dim)' : 'var(--text)',
+                background: isActive ? 'var(--accent-dim)' : 'transparent',
+                border: isActive ? '1px solid var(--accent-border)' : '1px solid transparent',
                 transition: 'all 0.15s ease',
-                opacity: isLocked ? 0.6 : 1,
               }}
-              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--surface-raised)'; }}
-              onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'var(--surface-raised)';
+                  e.currentTarget.style.color = 'var(--text)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = isLocked ? 'var(--text-dim)' : 'var(--text)';
+                }
+              }}
             >
-              {icon}
-              <span style={{ flex: 1 }}>{label}</span>
-              {isLocked && <LockIcon />}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[var(--accent)]' : 'text-current'}`} />
+                <span>{label}</span>
+              </div>
+              {isLocked && <Lock className="w-3.5 h-3.5 text-[var(--text-dim)] opacity-60" />}
             </Link>
           );
         })}
-      </nav>
 
-      {/* Separator */}
-      <div style={{ height: '1px', background: 'var(--border-light)', margin: '0 0.5rem 1.5rem 0.5rem' }} />
+        {/* Divider */}
+        <div style={{ height: '1px', background: 'var(--border-light)', margin: '0.75rem 0' }} />
 
-      {/* Secondary Nav */}
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', marginBottom: '0.5rem' }}>
+        <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 0.75rem 0.25rem' }}>
+          Preferences &amp; Help
+        </div>
+
+        {/* Settings Navigation Link */}
         <Link
           href="/settings"
+          id="nav-settings"
           style={{
-            display: 'flex', alignItems: 'center', gap: '0.75rem',
-            padding: '0.6875rem 1rem', borderRadius: '8px',
-            color: pathname === '/settings' ? 'var(--accent)' : 'var(--text-muted)',
-            textDecoration: 'none', fontWeight: 500, fontSize: '0.9375rem',
-            transition: 'background 0.15s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '0.625rem 0.875rem',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontFamily: 'var(--font-ui)',
+            fontSize: '0.875rem',
+            fontWeight: pathname === '/settings' ? 600 : 500,
+            color: pathname === '/settings' ? 'var(--accent)' : 'var(--text)',
+            background: pathname === '/settings' ? 'var(--accent-dim)' : 'transparent',
+            border: pathname === '/settings' ? '1px solid var(--accent-border)' : '1px solid transparent',
+            transition: 'all 0.15s ease',
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-raised)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+          onMouseEnter={(e) => {
+            if (pathname !== '/settings') e.currentTarget.style.background = 'var(--surface-raised)';
+          }}
+          onMouseLeave={(e) => {
+            if (pathname !== '/settings') e.currentTarget.style.background = 'transparent';
+          }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          Settings
+          <Settings className="w-4 h-4" />
+          <span>Settings</span>
         </Link>
 
-        {/* About MailGenius — collapsible */}
-        <CollapseItem
-          label="About"
-          icon={
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-          }
+        {/* How to Use Direct Link */}
+        <Link
+          href="/how-to-use"
+          id="nav-how-to-use"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '0.625rem 0.875rem',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontFamily: 'var(--font-ui)',
+            fontSize: '0.875rem',
+            fontWeight: pathname === '/how-to-use' ? 600 : 500,
+            color: pathname === '/how-to-use' ? 'var(--accent)' : 'var(--text)',
+            background: pathname === '/how-to-use' ? 'var(--accent-dim)' : 'transparent',
+            border: pathname === '/how-to-use' ? '1px solid var(--accent-border)' : '1px solid transparent',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            if (pathname !== '/how-to-use') e.currentTarget.style.background = 'var(--surface-raised)';
+          }}
+          onMouseLeave={(e) => {
+            if (pathname !== '/how-to-use') e.currentTarget.style.background = 'transparent';
+          }}
         >
-          <p style={{ marginBottom: '0.625rem', fontWeight: 600, color: 'var(--text)', fontSize: '0.8125rem' }}>About MailGenius</p>
-          <p style={{ marginBottom: '0.625rem' }}>
-            An advanced AI-powered email assistant that helps you write professional, concise, and persuasive emails in seconds.
-          </p>
-          <ul style={{ paddingLeft: '1rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <li>Powered by Google Gemini 1.5 Flash AI</li>
-            <li>Real-time SSE streaming generation</li>
-            <li>Secure auth & isolated user data</li>
-          </ul>
-        </CollapseItem>
+          <HelpCircle className="w-4 h-4" />
+          <span>How to Use</span>
+        </Link>
 
-        {/* How to Use — collapsible */}
-        <CollapseItem
-          label="How to Use"
-          icon={
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-          }
+        {/* About Direct Link */}
+        <Link
+          href="/about"
+          id="nav-about"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '0.625rem 0.875rem',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontFamily: 'var(--font-ui)',
+            fontSize: '0.875rem',
+            fontWeight: pathname === '/about' ? 600 : 500,
+            color: pathname === '/about' ? 'var(--accent)' : 'var(--text)',
+            background: pathname === '/about' ? 'var(--accent-dim)' : 'transparent',
+            border: pathname === '/about' ? '1px solid var(--accent-border)' : '1px solid transparent',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            if (pathname !== '/about') e.currentTarget.style.background = 'var(--surface-raised)';
+          }}
+          onMouseLeave={(e) => {
+            if (pathname !== '/about') e.currentTarget.style.background = 'transparent';
+          }}
         >
-          <p style={{ marginBottom: '0.625rem', fontWeight: 600, color: 'var(--text)', fontSize: '0.8125rem' }}>How to Use</p>
-          <ol style={{ paddingLeft: '1rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-            <li><strong style={{ color: 'var(--text)' }}>Generate:</strong> Paste an email or upload .txt/.eml, pick a tone, and hit generate.</li>
-            <li><strong style={{ color: 'var(--text)' }}>Live Stream:</strong> Use the "Live Stream" tab to watch AI type in real-time.</li>
-            <li><strong style={{ color: 'var(--text)' }}>Quick Replies:</strong> Click "Quick Replies" for instant 1-click suggestions.</li>
-            <li><strong style={{ color: 'var(--text)' }}>Save & History:</strong> Save templates or browse your full reply archive.</li>
-          </ol>
-        </CollapseItem>
+          <Info className="w-4 h-4" />
+          <span>About</span>
+        </Link>
       </nav>
 
-      <div style={{ flex: 1 }} />
-
-      {/* User Profile Card — authenticated */}
-      {user ? (
-        <div style={{ padding: '1rem', background: 'var(--surface-raised)', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: user.image ? 'transparent' : 'var(--accent)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              {user.image ? (
-                <img src={user.image} alt={user.name || 'User'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <span style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>{initials}</span>
-              )}
-            </div>
-            <div style={{ overflow: 'hidden', flex: 1 }}>
-              <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || 'User'}</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</p>
-            </div>
-          </div>
+      {/* ── Bottom Section: Sign Out or Exit Guest Mode ────────────── */}
+      <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--border-light)', marginTop: 'auto' }}>
+        {session?.user ? (
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            id="sidebar-sign-out"
-            style={{ width: '100%', padding: '0.5rem', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '0.8125rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontFamily: 'var(--font-ui)', transition: 'all 0.15s ease' }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+            id="sidebar-sign-out-btn"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.625rem',
+              width: '100%',
+              padding: '0.625rem 1rem',
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--accent)',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--accent-dim)';
+              e.currentTarget.style.borderColor = 'var(--accent-border)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.borderColor = 'var(--border)';
+            }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Sign Out
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
           </button>
-        </div>
-      ) : (
-        /* Guest User Card */
-        <div style={{ padding: '1rem', background: 'var(--surface-raised)', borderRadius: '10px', border: '1px dashed var(--border)', marginBottom: '0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--surface)', border: '1px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--text-dim)' }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div>
-              <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text)' }}>Guest User</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Not signed in</p>
-            </div>
-          </div>
+        ) : (
           <Link
             href="/login"
-            id="sidebar-sign-in"
-            style={{ width: '100%', padding: '0.5rem', background: 'var(--accent)', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '0.8125rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontFamily: 'var(--font-ui)', textDecoration: 'none', fontWeight: 600 }}
+            id="sidebar-exit-guest-btn"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.625rem',
+              width: '100%',
+              padding: '0.625rem 1rem',
+              background: 'var(--accent-gradient)',
+              borderRadius: '8px',
+              color: '#FFFFFF',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 10px rgba(37, 99, 235, 0.25)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(37, 99, 235, 0.35)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 10px rgba(37, 99, 235, 0.25)';
+            }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            Sign In / Sign Up
+            <LogIn className="w-4 h-4" />
+            <span>Exit Guest Mode</span>
           </Link>
-        </div>
-      )}
+        )}
+      </div>
     </aside>
   );
 }

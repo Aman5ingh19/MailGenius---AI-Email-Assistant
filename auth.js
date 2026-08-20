@@ -5,48 +5,42 @@ import connectDB from '@/lib/mongodb';
 import User from '@/lib/models/User';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || '3oR2rzaQX+dRvtDFgHL9M00l31ulHQ3jELnbeK5UTeI=',
   providers: [
     Credentials({
       name: 'Email & Password',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
-        name: { label: 'Name', type: 'text' },
-        isSignup: { label: 'Is Signup', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        await connectDB();
-        const email = String(credentials.email).toLowerCase().trim();
-        const password = String(credentials.password);
-        const isSignup = credentials.isSignup === 'true';
+        try {
+          await connectDB();
+          const email = String(credentials.email).toLowerCase().trim();
+          const password = String(credentials.password);
 
-        if (isSignup) {
-          // Registration flow
-          const existing = await User.findOne({ email });
-          if (existing) throw new Error('Email already in use. Please log in.');
-
-          const hashed = await bcrypt.hash(password, 12);
-          const user = await User.create({
-            name: String(credentials.name || 'User').trim(),
-            email,
-            password: hashed,
-            provider: 'credentials',
-          });
-
-          return { id: user._id.toString(), email: user.email, name: user.name, image: null };
-        } else {
-          // Login flow
           const user = await User.findOne({ email });
           if (!user || !user.password) {
-            throw new Error('No account found. Please sign up first.');
+            return null;
           }
 
-          const valid = await bcrypt.compare(password, user.password);
-          if (!valid) throw new Error('Incorrect password.');
+          const isValid = await bcrypt.compare(password, user.password);
+          if (!isValid) {
+            return null;
+          }
 
-          return { id: user._id.toString(), email: user.email, name: user.name, image: user.image || null };
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            image: user.image || null,
+          };
+        } catch (err) {
+          console.error('[Auth] authorize error:', err);
+          return null;
         }
       },
     }),
@@ -58,7 +52,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     async signIn({ user, account, profile }) {
-      // For OAuth providers, upsert the user in MongoDB
       if (account?.provider !== 'credentials') {
         try {
           await connectDB();
@@ -87,11 +80,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     async jwt({ token, user, account }) {
       if (user) {
-        // On initial sign in, attach the user's DB _id to the token
         if (user.id) {
           token.userId = user.id;
         } else {
-          // For OAuth users, look up by email
           try {
             await connectDB();
             const dbUser = await User.findOne({ email: token.email });
@@ -100,7 +91,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
 
-      // Persist OAuth access tokens for Gmail / Outlook
       if (account?.access_token) token.accessToken = account.access_token;
       if (account?.provider) token.provider = account.provider;
 
@@ -119,6 +109,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/login',
     error: '/login',
   },
-
-  secret: process.env.NEXTAUTH_SECRET,
 });

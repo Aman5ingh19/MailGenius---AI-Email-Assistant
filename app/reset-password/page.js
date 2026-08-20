@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Sparkles, Lock, ArrowLeft, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -11,6 +12,7 @@ function ResetPasswordForm() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -19,9 +21,10 @@ function ResetPasswordForm() {
     return (
       <div style={{ textAlign: 'center' }}>
         <div className="alert-error" style={{ marginBottom: '1.5rem', padding: '0.875rem' }}>
-          Invalid or missing reset token. Please request a new password reset link.
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>Invalid or missing reset token. Please request a new password reset link.</span>
         </div>
-        <Link href="/forgot-password" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>
+        <Link href="/forgot-password" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
           Go to Forgot Password
         </Link>
       </div>
@@ -65,39 +68,95 @@ function ResetPasswordForm() {
 
   return (
     <>
-      {error && <div className="alert-error" style={{ marginBottom: '1.5rem', padding: '0.875rem' }}>{error}</div>}
-      {message && <div className="alert-success" style={{ marginBottom: '1.5rem', padding: '0.875rem', background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '8px', fontSize: '0.875rem' }}>{message}<br/>Redirecting to login...</div>}
+      {error && (
+        <div className="alert-error" style={{ marginBottom: '1.5rem' }}>
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+      {message && (
+        <div className="alert-success" style={{ marginBottom: '1.5rem' }}>
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+          <span>{message}<br/>Redirecting to login...</span>
+        </div>
+      )}
 
       {!message && (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>New Password</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              className="input-base"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              style={{ width: '100%', padding: '0.875rem 1rem' }}
-            />
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text)' }}>New Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                className="input-base"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                style={{ width: '100%', padding: '0.875rem 2.75rem 0.875rem 1rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: '0.875rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.25rem',
+                }}
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Confirm New Password</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              className="input-base"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={loading}
-              style={{ width: '100%', padding: '0.875rem 1rem' }}
-            />
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text)' }}>Confirm New Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                className="input-base"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading}
+                style={{ width: '100%', padding: '0.875rem 2.75rem 0.875rem 1rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: '0.875rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.25rem',
+                }}
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <button
@@ -106,7 +165,7 @@ function ResetPasswordForm() {
             className="btn-primary"
             style={{ width: '100%', padding: '0.875rem', fontSize: '1rem', marginTop: '0.5rem' }}
           >
-            {loading ? 'Resetting...' : 'Reset Password'}
+            {loading ? <><div className="spinner" /> Resetting...</> : 'Reset Password'}
           </button>
         </form>
       )}
@@ -116,15 +175,19 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="auth-wrap">
-      <div className="auth-card" style={{ maxWidth: '440px', width: '100%' }}>
+    <div className="auth-page">
+      <div className="auth-bg-glow-1" />
+      <div className="auth-bg-glow-2" />
+      <div className="auth-bg-grid" />
+
+      <div className="auth-card" style={{ maxWidth: '440px', width: '100%', position: 'relative', zIndex: 10 }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ color: 'var(--accent)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" />
-            </svg>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
+              <Sparkles className="w-6 h-6" />
+            </div>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--text)' }}>
             Create New Password
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9375rem', marginTop: '0.5rem' }}>
@@ -135,6 +198,16 @@ export default function ResetPasswordPage() {
         <Suspense fallback={<div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>}>
           <ResetPasswordForm />
         </Suspense>
+
+        {/* ── Card Footer: MailGenius — Built by Aman Singh ── */}
+        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
+            <span style={{ fontWeight: 700, color: 'var(--text)' }}>MailGenius</span>
+            <span style={{ color: 'var(--text-dim)' }}>—</span>
+            <span>Built by</span>
+            <strong style={{ color: 'var(--accent)', fontWeight: 700 }}>Aman Singh</strong>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,150 +1,203 @@
 # 📧 MailGenius — AI-Powered Email Assistant
 
-**MailGenius** is a modern, production-ready AI email assistant built to help you craft polished email replies, improve existing drafts, and streamline inbox workflows in seconds. 
 
-Powered by a multi-provider fallback AI architecture (**Google Gemini**, **Groq**, and **OpenRouter**), MailGenius provides high availability, intelligent context analysis, multiple tone presets, and seamless email recovery.
+**MailGenius** is an executive-grade, production-ready AI email communication platform engineered to help professionals, executives, support teams, and creators compose authentic, persuasive, and measured email replies in seconds.
 
----
-
-## ✨ Key Features
-
-### 🤖 Multi-Provider AI Fallback Engine
-- **Zero Downtime Routing**: Automatically cascades requests through free-tier AI providers (**Gemini 2.5 Flash → Groq Llama 3.3 70B → OpenRouter Llama 3.2 3B**). If one hits rate limits or experiences downtime, requests automatically fall back to the next provider.
-- **Multi-Variation Generation**: Generate multiple distinct reply variations simultaneously (1 to 3 options) tailored to different tones and lengths.
-- **Improve My Reply Mode**: Analyzes existing email drafts for grammar, tone, and clarity, providing side-by-side comparisons and actionable explanations.
-- **Multilingual Support**: Supports multilingual inputs (**Auto-Detect, English, Hindi, Hinglish**) and translates/refines drafts into fluent, professional English.
-
-### 🔐 Authentication, Guest Mode & Password Recovery
-- **NextAuth v5 & Credentials**: Secure Email & Password authentication hashed with `bcryptjs`.
-- **Guest Mode**: Try the AI generation features instantly without creating an account. Prompts to register/sign in only when saving templates or viewing history.
-- **Forgot Password Recovery**: Secure self-service password reset system using single-use crypto tokens with 1-hour MongoDB TTL expiry and automated HTML email delivery via **Nodemailer** (Gmail SMTP).
-
-### 📊 Dashboard & History Management
-- **Interactive Dashboard**: At-a-glance analytics including total replies generated, time saved, saved templates, and a Quick Generate hero widget.
-- **History & Search**: Paginated archive of all generated emails with instant search filtering.
-- **Saved Templates**: Bookmark top-performing replies and reuse them in 1-click.
-
-### 🎨 Responsive & Themeable UI/UX
-- **Adaptive Design**: Fully responsive across desktop (1080p/4K), laptop, tablet, and mobile devices (360px+).
-- **Dark & Light Mode**: Built-in theme switcher with CSS custom property design system.
-- **Collapsible Sidebar**: Integrated quick-reference guides ("About" and "How to Use") with smooth scrolling navigation.
-
-### 🛡️ Production-Grade Infrastructure
-- **Redis Rate Limiting & Caching**: Powered by Upstash/Redis for distributed IP and user rate limiting.
-- **Winston Structured Logging**: Configurable logging levels (`error`, `warn`, `info`, `debug`) for server monitoring.
-- **Cloudinary Integration**: Cloud storage support for user profile avatars.
-- **Zod Schema Validation**: Strict schema validation on all incoming API requests.
+*Crafted and engineered with precision by **Aman Singh**.*
 
 ---
 
-## 🛠️ Tech Stack
+## 🌟 What Makes MailGenius Different?
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router, Server Components & Route Handlers)
-- **Frontend**: React 19, Vanilla CSS Custom Design System
-- **Authentication**: [NextAuth.js v5 (Beta)](https://next-auth.js.org/)
-- **Database & ODM**: [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
-- **Caching & Rate Limiting**: [Redis](https://redis.io/) / [Upstash](https://upstash.com/) (`ioredis`)
-- **Email Delivery**: [Nodemailer](https://nodemailer.com/)
-- **AI Integrations**: 
-  - [Google Gemini API](https://ai.google.dev/) (`@google/generative-ai`)
-  - [Groq SDK / REST](https://groq.com/) (`llama-3.3-70b-versatile`)
-  - [OpenRouter API](https://openrouter.ai/) (`meta-llama/llama-3.2-3b-instruct:free`)
-- **Image Hosting**: [Cloudinary](https://cloudinary.com/)
-- **Logging & Validation**: [Winston](https://github.com/winstonjs/winston), [Zod](https://zod.dev/)
+- **Multi-Provider AI Fallback Pipeline**: Zero downtime routing across **Google Gemini 1.5 Flash** (Primary Reasoning Engine), **Groq LLaMA 3.3 70B** (Sub-second LPU Fallback), and **OpenRouter LLaMA 3.2** (Distributed Cloud Router).
+- **60-30-10 Professional Color Harmony**: Modern slate & sky blue palette (`#F8FAFC` base, `#FFFFFF` panels, `#0284C7` accent in light mode; `#0B0F19` obsidian, `#1E293B` cards, `#38BDF8` bright cyan accent in dark mode).
+- **Live Mistake & Grammar Audit**: *"Improve My Reply"* mode analyzes rough drafts, flags grammatical errors, and presents side-by-side correction cards with actionable insights.
+- **1-Click Smart Quick Replies**: AI extracts core thread intent and generates instant 1-click action pills (*Accept*, *Politely Decline*, *Reschedule*, *Request Deck*).
+- **Multilingual Input & Polishing**: Draft in **English, Hindi, or Hinglish** — MailGenius seamlessly translates and polishes the output into fluent, professional English.
+- **Dedicated Admin Control Hub**: 4-tabbed command center for Profile Identity, Cloudinary Avatar Uploads, Bcrypt Security, AI Defaults, and Custom Signatures.
+- **Zero-Retention Enterprise Privacy**: No email content or generated responses are ever used to train public AI models.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Key Features Breakdown
+
+### 🤖 1. AI Studio & Writing Engine
+- **4 Adaptive Tone Modulators**: Select between **Formal** (`#0284C7`), **Friendly** (`#10B981`), **Concise** (`#D97706`), and **Persuasive** (`#8B5CF6`).
+- **Length & Variation Modulators**: Generate 1, 3, or 5 simultaneous reply options in Shorter, Balanced, or Longer lengths.
+- **Document & Email Parser**: Directly drop or upload `.txt` and `.eml` raw email files without copy-pasting.
+- **Custom Signature Studio**: Automatically appends your configured professional sign-off to generated replies.
+
+### 🛡️ 2. Authentication, Guest Mode & Security
+- **NextAuth v5 & Bcrypt**: Secure Email & Password authentication with Bcrypt 12 rounds password hashing.
+- **Interactive Password Visibility**: One-click Eye (`<Eye />` / `<EyeOff />`) toggle on all login, signup, and reset forms.
+- **Zero-Friction Guest Mode**: Try all AI generation features instantly without registering; non-destructive read-only states for admin settings.
+- **Password Reset Flow**: Cryptographic single-use token recovery with automated HTML delivery via **Nodemailer (Gmail SMTP)**.
+
+### 📊 3. Reply History & Template Vault
+- **Reply Archive (`/history`)**: Filter past replies by tone pills (*All, Formal, Friendly, Concise, Persuasive*), copy with 1 click, or load directly into the Studio with the **"⚡ Studio"** launcher.
+- **Template Vault (`/saved`)**: Client-side live search, expandable cards, and 1-click reusable templates.
+- **Executive Dashboard (`/dashboard`)**: Metric cards (Total Generations, Time Saved, Vault Count), recent activity feed, and quick generation widget.
+
+### 📱 4. Multi-Device Responsiveness
+- **Mobile (`< 768px`)**: Collapsible sliding drawer navigation, touch-friendly buttons ($\ge 44\text{px}$), and stacked input forms.
+- **Tablet (`768px – 1080px`)**: Adaptive 2-column auto-fit grids and balanced control panels.
+- **Desktop (`> 1080px`)**: 260px fixed command sidebar, split-view studio workspace, and sticky admin navigation tabs.
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework** | [Next.js 16 (App Router)](https://nextjs.org/) | Full-stack server components, route handlers & SSR |
+| **UI Library** | [React 19](https://react.dev/) | Declarative component UI engine |
+| **Icons** | [Lucide React](https://lucide.dev/) | Clean, modern feather-style icons |
+| **Design System** | Vanilla CSS + 60-30-10 Tokens | High-performance styling without heavy runtime CSS |
+| **Auth** | [NextAuth.js v5 Beta](https://next-auth.js.org/) | Secure JWT session management & Bcrypt hashing |
+| **Database** | [MongoDB Atlas](https://www.mongodb.com/) + Mongoose | Encrypted cloud persistence for users, history & templates |
+| **AI Providers** | Google Gemini, Groq, OpenRouter | Multi-provider fallback cascade with sub-second latency |
+| **Media CDN** | [Cloudinary](https://cloudinary.com/) | Cloud hosting for user avatars |
+| **Email Delivery** | [Nodemailer](https://nodemailer.com/) | Automated TLS password reset notifications |
+| **Rate Limiting** | [Upstash / Redis](https://upstash.com/) | Distributed IP & user request rate limiting |
+| **Validation & Logs** | [Zod](https://zod.dev/) & [Winston](https://github.com/winstonjs/winston) | Strict request parsing & structured log telemetry |
+
+---
+
+## 📂 Project Architecture
+
+```text
+├── app/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── [...nextauth]/route.js   # NextAuth v5 session handler
+│   │   │   ├── register/route.js        # Safe signup & duplicate checking
+│   │   │   ├── forgot-password/route.js # Password reset token dispatcher
+│   │   │   └── reset-password/route.js  # Token verification & password reset
+│   │   ├── generate/route.js            # Multi-provider AI generation pipeline
+│   │   ├── history/route.js             # Paginated history fetch & delete API
+│   │   └── user/
+│   │       ├── avatar/route.js          # Cloudinary avatar upload/delete API
+│   │       └── profile/route.js         # User profile updater
+│   ├── about/page.js                    # Architecture, multi-provider engine & privacy specs
+│   ├── dashboard/page.js                # Analytics dashboard & quick generation widget
+│   ├── forgot-password/page.js          # Password recovery request page
+│   ├── generator/page.js                # AI studio workspace with live auditing
+│   ├── history/
+│   │   ├── page.js                      # Server container
+│   │   └── HistoryClient.js             # Filterable reply archive & studio launcher
+│   ├── how-to-use/page.js               # 5-step user masterclass & keyboard shortcuts
+│   ├── login/page.js                    # Auth entry with eye password toggle & branding
+│   ├── reset-password/page.js           # Password reset form with eye toggle
+│   ├── saved/
+│   │   ├── page.js                      # Server container
+│   │   └── SavedClient.js               # Live-searchable saved templates vault
+│   ├── settings/page.js                 # 4-tab Admin Hub (Profile, Security, AI, System)
+│   ├── globals.css                      # 60-30-10 tokens, typography & responsive layouts
+│   └── layout.js                        # Root layout with Google Fonts, Sidebar & Topbar
+├── components/
+│   ├── Sidebar.js                       # Collapsible responsive command navigation
+│   ├── Topbar.js                        # Global search, theme switcher & admin dropdown
+│   ├── ThemeToggle.js                   # Smooth light/dark theme switch button
+│   └── Postmark.js                      # Visual tone badge indicator
+├── lib/
+│   ├── ai/
+│   │   ├── gemini.js                    # Google Gemini 1.5 Flash client
+│   │   ├── groq.js                      # Groq LLaMA 3.3 (70B) fallback client
+│   │   ├── openrouter.js                # OpenRouter LLaMA 3.2 fallback client
+│   │   └── index.js                     # Fallback router orchestrator
+│   ├── models/
+│   │   ├── User.js                      # MongoDB User model
+│   │   ├── EmailHistory.js              # History record schema
+│   │   ├── Template.js                  # Saved template schema
+│   │   └── ResetToken.js                # Password recovery token schema
+│   ├── mongodb.js                       # Cached Mongoose connection handler
+│   ├── rateLimit.js                     # Redis distributed rate limiter
+│   └── logger.js                        # Winston structured logger
+└── auth.js                              # NextAuth v5 configuration & credentials provider
+```
+
+---
+
+## ⚡ Getting Started
 
 ### Prerequisites
-
-- **Node.js**: `v18.17.0` or later
-- **MongoDB**: A free MongoDB Atlas cluster URI
+- **Node.js**: `v18.18.0` or later
+- **MongoDB**: A free MongoDB Atlas cluster connection string
 - **Google Gemini API Key**: [Google AI Studio](https://aistudio.google.com/)
 
-### 1. Clone & Install Dependencies
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Aman5ingh19/MailGenius---AI-Email-Assistant.git
 cd MailGenius---AI-Email-Assistant
+```
+
+### 2. Install Dependencies
+```bash
 npm install
 ```
 
-### 2. Configure Environment Variables
-
-Create a `.env.local` file in the project root and fill in the required keys:
+### 3. Configure Environment Variables
+Create a `.env.local` file in the root directory and populate the required keys:
 
 ```env
-# ── AI Providers (At least GEMINI_API_KEY required) ───────────────
+# ── Primary AI Provider (Required) ────────────────────────────────
 GEMINI_API_KEY=your_gemini_api_key
-GROQ_API_KEY=your_groq_api_key          # Optional fallback
-OPENROUTER_API_KEY=your_openrouter_key  # Optional fallback
 
-# ── Database ──────────────────────────────────────────────────────
+# ── Fallback AI Providers (Optional but recommended for 99.9% uptime)
+GROQ_API_KEY=your_groq_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+
+# ── Database (Required) ───────────────────────────────────────────
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/mailgenius
 
-# ── Authentication (NextAuth v5) ──────────────────────────────────
-# Generate secret: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-NEXTAUTH_SECRET=your_generated_secret_key
+# ── NextAuth v5 Authentication (Required) ─────────────────────────
+# Generate a secret: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+AUTH_SECRET=your_32_byte_base64_secret_key
+AUTH_TRUST_HOST=true
 NEXTAUTH_URL=http://localhost:3000
 
-# ── Password Recovery Email (Gmail SMTP / Nodemailer) ─────────────
-EMAIL_USER=your_app_email@gmail.com
+# ── Email Delivery for Password Recovery (Optional) ───────────────
+EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_16_character_google_app_password
 
-# ── Cloudinary (Optional Avatar Storage) ──────────────────────────
+# ── Cloudinary Media CDN for Avatars (Optional) ───────────────────
 CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_key
-CLOUDINARY_API_SECRET=your_cloudinary_secret
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
-# ── Upstash / Redis (Optional Rate Limiting) ──────────────────────
+# ── Redis Rate Limiting (Optional) ────────────────────────────────
 REDIS_URL=redis://default:password@host:port
 
-# ── Logging ───────────────────────────────────────────────────────
+# ── Logging Level ─────────────────────────────────────────────────
 LOG_LEVEL=info
 ```
 
-### 3. Run the Development Server
-
+### 4. Start Development Server
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to start using MailGenius!
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 📁 Project Structure
+## 🛡️ Enterprise Privacy & Zero Retention
 
-```text
-├── app/
-│   ├── api/                     # Backend Route Handlers
-│   │   ├── auth/                # NextAuth & Password Reset endpoints
-│   │   ├── generate/            # AI reply generation API
-│   │   ├── history/             # History pagination & search API
-│   ├── dashboard/               # Analytics & quick generation dashboard
-│   ├── forgot-password/         # Password recovery request page
-│   ├── generator/               # Main AI Email Assistant
-│   ├── history/                 # Paginated activity archive
-│   ├── login/                   # Auth & Guest Mode entry
-│   ├── reset-password/          # Token verification & password reset page
-│   ├── saved/                   # Saved templates collection
-│   ├── settings/                # User preferences & profile settings
-│   ├── globals.css              # Global tokens, themes, & responsive layouts
-│   └── layout.js                # Root layout with Sidebar and Topbar
-├── components/                  # Reusable UI elements (Sidebar, Topbar, ThemeToggle, Postmark)
-├── lib/
-│   ├── ai/                      # Central AI provider router & fallbacks
-│   ├── models/                  # Mongoose Schemas (User, EmailHistory, Template, ResetToken)
-│   ├── rateLimit.js             # Distributed Redis rate limiting
-│   ├── logger.js                # Winston logging utility
-│   ├── mongodb.js               # Cached MongoDB connection handler
-│   └── actions.js               # Next.js Server Actions
-└── proxy.js                     # Middleware for route protection & guest routing
-```
+MailGenius adheres strictly to enterprise-grade data handling practices:
+1. **Zero Model Training**: No user prompts, uploaded `.eml`/`.txt` files, or generated responses are ever utilized to train public AI models.
+2. **User Vault Isolation**: Saved templates and response history are strictly partitioned and accessible solely by the authenticated owner.
+3. **Transient Guest Sessions**: Guest mode operations run completely ephemerally with zero database retention.
+
+---
+
+## 👨‍💻 Author & Attribution
+
+**MailGenius — Built by Aman Singh**  
+- GitHub: [@Aman5ingh19](https://github.com/Aman5ingh19)
+- Project Repository: [MailGenius — AI Email Assistant](https://github.com/Aman5ingh19/MailGenius---AI-Email-Assistant)
 
 ---
 
 ## 📜 License
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.

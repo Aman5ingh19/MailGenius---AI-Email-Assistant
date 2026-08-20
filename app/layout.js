@@ -1,8 +1,30 @@
 import './globals.css';
+import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from 'next/font/google';
 import Sidebar from '@/components/Sidebar';
 import Topbar from '@/components/Topbar';
 import Providers from '@/components/Providers';
 import { auth } from '@/auth';
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-ui',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata = {
   title: '📧 MailGenius — AI Email Assistant',
@@ -14,7 +36,7 @@ export default async function RootLayout({ children }) {
   const session = await auth();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${plusJakarta.variable} ${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
         {/* Prevent flash of wrong theme by reading localStorage before first paint */}
         <script

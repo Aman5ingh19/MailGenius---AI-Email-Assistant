@@ -1,8 +1,9 @@
 import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
 
-// Routes that REQUIRE authentication (guests cannot access)
-const PROTECTED = ['/history', '/saved', '/settings'];
+// Routes that REQUIRE authentication (history and saved require logged-in account)
+// Settings is accessible in Read-Only mode for guests
+const PROTECTED = ['/history', '/saved'];
 
 export default auth(function proxy(req) {
   const { pathname } = req.nextUrl;
