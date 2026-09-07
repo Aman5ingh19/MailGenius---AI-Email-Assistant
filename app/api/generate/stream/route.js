@@ -53,20 +53,39 @@ export async function POST(request) {
 
     // ── Server-Sent Events stream ─────────────────────────────────────────────
     const encoder = new TextEncoder();
+    const STREAM_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'];
 
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-          const result = await model.generateContentStream(prompt);
+          let streamSuccess = false;
+          let lastStreamError = null;
 
-          for await (const chunk of result.stream) {
-            const text = chunk.text();
-            if (text) {
-              // SSE format: "data: <payload>\n\n"
-              const sseMessage = `data: ${JSON.stringify({ token: text })}\n\n`;
-              controller.enqueue(encoder.encode(sseMessage));
+          for (const modelName of STREAM_MODELS) {
+            try {
+              const model = genAI.getGenerativeModel({ model: modelName });
+              const result = await model.generateContentStream(prompt);
+
+              for await (const chunk of result.stream) {
+                const text = chunk.text();
+                if (text) {
+                  // SSE format: "data: <payload>\n\n"
+                  const sseMessage = `data: ${JSON.stringify({ token: text })}\n\n`;
+                  controller.enqueue(encoder.encode(sseMessage));
+                }
+              }
+
+              streamSuccess = true;
+              break;
+            } catch (modelErr) {
+              lastStreamError = modelErr;
+              logger.warn(`Stream model ${modelName} failed: ${modelErr.message}`);
+              continue;
             }
+          }
+
+          if (!streamSuccess) {
+            throw lastStreamError || new Error('All stream models exhausted.');
           }
 
           // Signal stream completion
