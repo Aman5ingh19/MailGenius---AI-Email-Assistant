@@ -128,8 +128,13 @@ function GeneratorInner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'quick-replies', originalEmail }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status}.`);
+      }
+      if (!res.ok) throw new Error(data.error || 'Failed to generate quick replies.');
       setQuickReplies(data.suggestions || []);
     } catch (err) {
       setError('Could not generate quick replies: ' + err.message);
@@ -164,8 +169,14 @@ function GeneratorInner() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to generate reply.');
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status}. Please check your server or connection.`);
+      }
+
+      if (!res.ok) throw new Error(data.error || `Failed to generate reply (Status ${res.status}).`);
 
       if (mode === 'improve') {
         setImproveResult(data.improveResult);

@@ -21,13 +21,21 @@ export default function QuickGenerate() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originalEmail: email, tone, length: 'default', variations: 1, useEmojis: false }),
+        body: JSON.stringify({ action: 'generate', originalEmail: email, tone, length: 'default', variations: 1, useEmojis: false }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to generate');
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status}. Please check your server or connection.`);
+      }
+      if (!res.ok) throw new Error(data?.error || `Failed to generate reply (Status ${res.status})`);
+      if (!data?.reply || !Array.isArray(data.reply) || data.reply.length === 0) {
+        throw new Error('No reply generated. Please try again.');
+      }
       setReply(data.reply[0]);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
