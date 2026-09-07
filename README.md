@@ -11,8 +11,6 @@
 
 **An executive-grade, production-ready AI email intelligence platform built to compose, audit, translate, and optimize professional email communications with zero-downtime multi-provider resilience.**
 
-[Live Demo](#-live-demo--preview) • [Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Tech Stack](#-technology-stack) • [Installation](#-getting-started) • [API Documentation](#-api-endpoints)
-
 ---
 
 </div>
