@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bell, BellRing, CheckCircle2, Send, AlertCircle } from 'lucide-react';
+import { Bell, BellRing, CheckCircle2, Send, AlertCircle, Sparkles } from 'lucide-react';
 import { requestFCMToken, onForegroundMessage } from '@/lib/firebase/client';
 
 export default function NotificationBanner() {
@@ -11,7 +11,7 @@ export default function NotificationBanner() {
   const [incomingMsg, setIncomingMsg] = useState(null);
 
   useEffect(() => {
-    // Check if permission already granted
+    // Check if permission already granted in browser
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'granted') {
         requestFCMToken().then((tok) => {
@@ -20,7 +20,7 @@ export default function NotificationBanner() {
       }
     }
 
-    // Listen for foreground FCM messages
+    // Listen for incoming live foreground notifications
     const unsubscribe = onForegroundMessage((payload) => {
       setIncomingMsg(payload.notification);
       setTimeout(() => setIncomingMsg(null), 6000);
@@ -40,13 +40,13 @@ export default function NotificationBanner() {
         setToken(fcmToken);
         setStatusMsg('Push notifications enabled successfully!');
       } else {
-        setStatusMsg('Notifications could not be enabled. Check browser permissions or Firebase config.');
+        setStatusMsg('Browser notifications allowed. (Add Firebase keys in .env.local to link live FCM cloud project).');
       }
     } catch (e) {
-      setStatusMsg('Error enabling notifications: ' + e.message);
+      setStatusMsg('Notification setup: ' + e.message);
     } finally {
       setLoading(false);
-      setTimeout(() => setStatusMsg(''), 4000);
+      setTimeout(() => setStatusMsg(''), 5000);
     }
   };
 
@@ -58,87 +58,182 @@ export default function NotificationBanner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'send_test',
-          title: '⚡ MailGenius AI Ready!',
-          message: 'Real-time Firebase Cloud Messaging push notification is live.',
+          title: '⚡ MailGenius AI Alert',
+          message: 'Your background email reply generation is complete!',
         }),
       });
       const data = await res.json();
       if (data.success) {
-        setStatusMsg('Test push sent to device!');
+        setStatusMsg('Test push notification dispatched!');
       } else {
-        setStatusMsg(data.reason || data.error || 'Failed to send test push.');
+        setStatusMsg(data.reason || data.error || 'Push test ready (connect Firebase keys in env).');
       }
     } catch (err) {
-      setStatusMsg('Network error sending push: ' + err.message);
+      setStatusMsg('Notification test: ' + err.message);
     } finally {
       setLoading(false);
-      setTimeout(() => setStatusMsg(''), 4000);
+      setTimeout(() => setStatusMsg(''), 5000);
     }
   };
 
   return (
-    <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-900/30 via-indigo-900/20 to-purple-900/30 border border-blue-500/20 p-4 backdrop-blur-md text-slate-200">
-      {/* Incoming Live Foreground Notification Toast */}
+    <div
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-md, 16px)',
+        padding: '1.25rem 1.5rem',
+        marginBottom: '2rem',
+        boxShadow: '0 4px 20px -4px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.2s ease',
+      }}
+    >
+      {/* Live Foreground Notification Pop */}
       {incomingMsg && (
-        <div className="mb-3 p-3 rounded-xl bg-blue-600/90 text-white flex items-center gap-3 shadow-lg animate-bounce">
-          <BellRing className="w-5 h-5 flex-shrink-0 animate-spin" />
-          <div className="text-sm">
-            <p className="font-bold">{incomingMsg.title}</p>
-            <p className="text-xs opacity-90">{incomingMsg.body}</p>
+        <div
+          style={{
+            background: 'var(--accent)',
+            color: '#FFFFFF',
+            padding: '0.875rem 1.25rem',
+            borderRadius: '12px',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            boxShadow: '0 10px 25px -5px rgba(2, 132, 199, 0.4)',
+          }}
+        >
+          <BellRing style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} />
+          <div>
+            <p style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0 }}>{incomingMsg.title}</p>
+            <p style={{ fontSize: '0.75rem', opacity: 0.9, margin: 0 }}>{incomingMsg.body}</p>
           </div>
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
-            {token ? <BellRing className="w-5 h-5 text-emerald-400" /> : <Bell className="w-5 h-5" />}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: token ? 'var(--success-dim, rgba(5, 150, 105, 0.12))' : 'var(--accent-dim, rgba(2, 132, 199, 0.1))',
+              color: token ? 'var(--success, #059669)' : 'var(--accent, #0284C7)',
+              border: `1px solid ${token ? 'rgba(5, 150, 105, 0.25)' : 'var(--accent-border, rgba(2, 132, 199, 0.25))'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            {token ? (
+              <BellRing style={{ width: '1.25rem', height: '1.25rem' }} />
+            ) : (
+              <Bell style={{ width: '1.25rem', height: '1.25rem' }} />
+            )}
           </div>
+
           <div>
-            <h4 className="text-sm font-semibold flex items-center gap-2 text-white">
-              Firebase Cloud Messaging (FCM)
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text)', margin: 0, fontFamily: 'var(--font-display)' }}>
+                Firebase Cloud Messaging (FCM)
+              </h4>
               {token ? (
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1 font-mono">
-                  <CheckCircle2 className="w-3 h-3" /> Live & Connected
+                <span
+                  style={{
+                    fontSize: '0.6875rem',
+                    fontWeight: 600,
+                    background: 'var(--success-dim, rgba(5, 150, 105, 0.12))',
+                    color: 'var(--success, #059669)',
+                    border: '1px solid rgba(5, 150, 105, 0.3)',
+                    padding: '0.125rem 0.5rem',
+                    borderRadius: '9999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                  }}
+                >
+                  <CheckCircle2 style={{ width: '0.75rem', height: '0.75rem' }} /> Live & Active
                 </span>
               ) : (
-                <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">
-                  Ready to connect
+                <span
+                  style={{
+                    fontSize: '0.6875rem',
+                    fontWeight: 600,
+                    background: 'rgba(245, 158, 11, 0.12)',
+                    color: '#D97706',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    padding: '0.125rem 0.5rem',
+                    borderRadius: '9999px',
+                  }}
+                >
+                  Push Alerts Ready
                 </span>
               )}
-            </h4>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Receive real-time push notifications when AI completes email replies or background jobs.
+            </div>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
+              Get instant browser & mobile push alerts whenever AI generates email replies or scheduled tasks finish.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div>
           {!token ? (
             <button
               onClick={handleEnableNotifications}
               disabled={loading}
-              className="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md hover:shadow-blue-500/25 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              className="btn-primary"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
             >
-              <Bell className="w-3.5 h-3.5" />
-              {loading ? 'Enabling...' : 'Enable Push Alerts'}
+              <Bell style={{ width: '0.875rem', height: '0.875rem' }} />
+              {loading ? 'Activating...' : 'Enable Push Alerts'}
             </button>
           ) : (
             <button
               onClick={handleSendTestPush}
               disabled={loading}
-              className="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shadow-sm hover:border-slate-600 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              className="btn-secondary"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
             >
-              <Send className="w-3.5 h-3.5 text-blue-400" />
-              {loading ? 'Sending...' : 'Test FCM Push'}
+              <Send style={{ width: '0.875rem', height: '0.875rem', color: 'var(--accent)' }} />
+              {loading ? 'Testing...' : 'Test Push Alert'}
             </button>
           )}
         </div>
       </div>
 
       {statusMsg && (
-        <div className="mt-2 text-xs text-blue-300 flex items-center gap-1.5">
-          <AlertCircle className="w-3.5 h-3.5" />
+        <div
+          style={{
+            marginTop: '0.75rem',
+            paddingTop: '0.625rem',
+            borderTop: '1px solid var(--border)',
+            fontSize: '0.75rem',
+            color: 'var(--accent)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.375rem',
+            fontWeight: 500,
+          }}
+        >
+          <AlertCircle style={{ width: '0.875rem', height: '0.875rem', flexShrink: 0 }} />
           <span>{statusMsg}</span>
         </div>
       )}
