@@ -24,6 +24,9 @@ COPY . .
 # Disable Next.js telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV MONGODB_URI="mongodb://localhost:27017/build"
+ENV AUTH_SECRET="buildtimeauthsecretkeyatleast32charslong!"
+ENV GEMINI_API_KEY="build-time-dummy-key"
 
 # Build Next.js standalone application
 RUN npm run build
