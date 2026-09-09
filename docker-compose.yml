@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # ── Next.js Application Service ──────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mailgenius-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/mailgenius
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEXTAUTH_URL=http://localhost:3000
+      - AUTH_SECRET=${AUTH_SECRET:-supersecretjwtsecretkeymin32charslong}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - mailgenius-net
+    volumes:
+      - app-logs:/app/logs
+
+  # ── Redis (Caching & Rate Limiting) ──────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: mailgenius-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - mailgenius-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── MongoDB Database ──────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7.0-alpine
+    container_name: mailgenius-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mailgenius-net
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  mailgenius-net:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mongo-data:
+  app-logs:

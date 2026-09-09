@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // ── Standalone build output for lightweight Docker containers ──────────────
+  output: 'standalone',
+
   // ── Gzip / Brotli compression ──────────────────────────────────────────────
   compress: true,
 
@@ -30,15 +33,17 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // Allow scripts from self + inline (Next.js needs this)
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.gstatic.com",
               // Allow styles from self + inline (CSS-in-JS)
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Allow fonts from Google Fonts + self
               "font-src 'self' https://fonts.gstatic.com",
               // Allow images from self + Cloudinary CDN + data URIs
               "img-src 'self' data: blob: https://res.cloudinary.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com",
-              // Allow API connections to trusted origins
-              "connect-src 'self' https://generativelanguage.googleapis.com https://api.groq.com https://openrouter.ai",
+              // Allow API connections to trusted origins + Firebase
+              "connect-src 'self' https://generativelanguage.googleapis.com https://api.groq.com https://openrouter.ai https://fcm.googleapis.com https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com",
+              // Allow service workers
+              "worker-src 'self' blob:",
               // No frames from external origins
               "frame-src 'none'",
             ].join('; '),

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Postmark from '@/components/Postmark';
 import QuickGenerate from './QuickGenerate';
+import NotificationBanner from '@/components/NotificationBanner';
 import connectDB from '@/lib/mongodb';
 import EmailHistory from '@/lib/models/EmailHistory';
 import Template from '@/lib/models/Template';
@@ -98,6 +99,9 @@ export default async function DashboardPage() {
           Generate New Reply
         </Link>
       </div>
+
+      {/* ── FCM Notification Banner ────────────────────────────── */}
+      <NotificationBanner />
 
       {dbError && (
         <div className="alert-error" style={{ marginBottom: '2rem' }}>
