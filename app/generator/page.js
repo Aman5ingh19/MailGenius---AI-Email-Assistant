@@ -596,30 +596,47 @@ function GeneratorInner() {
           {/* Action Trigger Buttons */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              {(originalEmail || draftReply) && (
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  className="btn-ghost"
-                  style={{ padding: '0.55rem 0.875rem', display: 'flex', gap: '0.375rem', alignItems: 'center', fontSize: '0.8125rem' }}
-                  title="Clear input text"
-                  id="btn-clear-input"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-[var(--text-muted)]" /> Clear
-                </button>
-              )}
-              {(reply || improveResult || originalEmail || draftReply) && (
-                <button
-                  type="button"
-                  onClick={handleNewMail}
-                  className="btn-ghost"
-                  style={{ padding: '0.55rem 0.875rem', display: 'flex', gap: '0.375rem', alignItems: 'center', fontSize: '0.8125rem', color: 'var(--accent)' }}
-                  title="Start a brand new email"
-                  id="btn-new-mail"
-                >
-                  <PlusCircle className="w-3.5 h-3.5" /> New Mail
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleClear}
+                disabled={!originalEmail && !draftReply}
+                className="btn-secondary"
+                style={{
+                  padding: '0.55rem 0.95rem',
+                  display: 'flex',
+                  gap: '0.4rem',
+                  alignItems: 'center',
+                  fontSize: '0.8125rem',
+                  opacity: (!originalEmail && !draftReply) ? 0.45 : 1,
+                  cursor: (!originalEmail && !draftReply) ? 'not-allowed' : 'pointer',
+                }}
+                title="Clear input text area"
+                id="btn-clear-input"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Clear
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleNewMail}
+                disabled={!originalEmail && !draftReply && !reply && !improveResult}
+                className="btn-secondary"
+                style={{
+                  padding: '0.55rem 0.95rem',
+                  display: 'flex',
+                  gap: '0.4rem',
+                  alignItems: 'center',
+                  fontSize: '0.8125rem',
+                  color: 'var(--accent)',
+                  borderColor: 'var(--accent-border, rgba(2, 132, 199, 0.3))',
+                  opacity: (!originalEmail && !draftReply && !reply && !improveResult) ? 0.45 : 1,
+                  cursor: (!originalEmail && !draftReply && !reply && !improveResult) ? 'not-allowed' : 'pointer',
+                }}
+                title="Reset everything and start fresh email"
+                id="btn-new-mail"
+              >
+                <PlusCircle className="w-3.5 h-3.5" /> New Mail
+              </button>
             </div>
 
             <button

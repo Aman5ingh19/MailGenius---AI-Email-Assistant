@@ -208,30 +208,45 @@ export default function QuickGenerate() {
             </select>
           </div>
 
-          {(email || reply) && (
-            <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
-              {email && (
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  className="btn-ghost"
-                  style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-                  title="Clear incoming email text"
-                >
-                  <RotateCcw className="w-3 h-3 text-[var(--text-muted)]" /> Clear
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={handleNewMail}
-                className="btn-ghost"
-                style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--accent)' }}
-                title="Reset & start brand new email"
-              >
-                <PlusCircle className="w-3 h-3" /> New Mail
-              </button>
-            </div>
-          )}
+          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={handleClear}
+              disabled={!email}
+              className="btn-ghost"
+              style={{
+                padding: '0.35rem 0.6rem',
+                fontSize: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                opacity: !email ? 0.4 : 1,
+                cursor: !email ? 'not-allowed' : 'pointer',
+              }}
+              title="Clear incoming email text"
+            >
+              <RotateCcw className="w-3 h-3" /> Clear
+            </button>
+            <button
+              type="button"
+              onClick={handleNewMail}
+              disabled={!email && !reply}
+              className="btn-ghost"
+              style={{
+                padding: '0.35rem 0.6rem',
+                fontSize: '0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                color: 'var(--accent)',
+                opacity: (!email && !reply) ? 0.4 : 1,
+                cursor: (!email && !reply) ? 'not-allowed' : 'pointer',
+              }}
+              title="Reset & start brand new email"
+            >
+              <PlusCircle className="w-3 h-3" /> New Mail
+            </button>
+          </div>
         </div>
 
         <button
