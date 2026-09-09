@@ -3,12 +3,13 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js')
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
 // Initialize the Firebase app in the service worker
-// Environment values will be read or default to fallback config
 firebase.initializeApp({
-  apiKey: "AIzaSyDummyKeyForServiceWorkerInit",
-  messagingSenderId: "1234567890",
-  projectId: "mailgenius-prod",
-  appId: "1:1234567890:web:abcdef123456",
+  apiKey: "AIzaSyArB5herOIIuxfwJz8gQ6jyjebPbqjSh-o",
+  authDomain: "mailgenius-ai.firebaseapp.com",
+  projectId: "mailgenius-ai",
+  storageBucket: "mailgenius-ai.firebasestorage.app",
+  messagingSenderId: "806590376993",
+  appId: "1:806590376993:web:8bbdc23cfce29074ec4760",
 });
 
 const messaging = firebase.messaging();
