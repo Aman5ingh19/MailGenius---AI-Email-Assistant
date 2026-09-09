@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // ── Standalone build output for lightweight Docker containers ──────────────
-  output: 'standalone',
+  output: process.env.NEXT_OUTPUT_STANDALONE === 'true' || process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
 
   // ── Gzip / Brotli compression ──────────────────────────────────────────────
   compress: true,
