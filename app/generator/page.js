@@ -27,6 +27,9 @@ import {
   BellRing,
   CheckCircle2,
   X,
+  RotateCcw,
+  PlusCircle,
+  Trash2,
 } from 'lucide-react';
 
 const TONES = [
@@ -211,6 +214,23 @@ function GeneratorInner() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleClear() {
+    setOriginalEmail('');
+    setDraftReply('');
+    setQuickReplies([]);
+    setError('');
+  }
+
+  function handleNewMail() {
+    setOriginalEmail('');
+    setDraftReply('');
+    setReply(null);
+    setImproveResult(null);
+    setQuickReplies([]);
+    setError('');
+    setCurrentVariationIndex(0);
   }
 
   async function handleCopy() {
@@ -573,8 +593,35 @@ function GeneratorInner() {
             </div>
           )}
 
-          {/* Action Trigger Button */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+          {/* Action Trigger Buttons */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              {(originalEmail || draftReply) && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="btn-ghost"
+                  style={{ padding: '0.55rem 0.875rem', display: 'flex', gap: '0.375rem', alignItems: 'center', fontSize: '0.8125rem' }}
+                  title="Clear input text"
+                  id="btn-clear-input"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-[var(--text-muted)]" /> Clear
+                </button>
+              )}
+              {(reply || improveResult || originalEmail || draftReply) && (
+                <button
+                  type="button"
+                  onClick={handleNewMail}
+                  className="btn-ghost"
+                  style={{ padding: '0.55rem 0.875rem', display: 'flex', gap: '0.375rem', alignItems: 'center', fontSize: '0.8125rem', color: 'var(--accent)' }}
+                  title="Start a brand new email"
+                  id="btn-new-mail"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" /> New Mail
+                </button>
+              )}
+            </div>
+
             <button
               className="btn-primary"
               onClick={handleGenerate}
@@ -603,11 +650,11 @@ function GeneratorInner() {
             improveResult ? (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div style={{ border: '1px solid rgba(16, 185, 129, 0.3)', background: 'var(--surface-raised)', padding: '1.5rem', borderRadius: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                       <Check className="w-4 h-4" /> Improved Response
                     </h3>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                       <button className="btn-ghost" onClick={handleCopy} type="button" style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}>
                         {copied ? <><Check className="w-3 h-3 text-[var(--success)]" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
                       </button>
@@ -620,6 +667,15 @@ function GeneratorInner() {
                         style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', opacity: isGuest ? 0.5 : 1, cursor: isGuest ? 'not-allowed' : 'pointer' }}
                       >
                         <Bookmark className="w-3 h-3" /> Save
+                      </button>
+                      <button
+                        className="btn-ghost"
+                        onClick={handleNewMail}
+                        type="button"
+                        title="Start a new email"
+                        style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      >
+                        <PlusCircle className="w-3 h-3" /> New Mail
                       </button>
                     </div>
                   </div>
@@ -674,7 +730,7 @@ function GeneratorInner() {
                     <Postmark tone={tone} size="sm" />
                     <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text)' }}>AI Generated Response</span>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <button className="btn-ghost" onClick={handleCopy} type="button" style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}>
                       {copied ? <><Check className="w-3 h-3 text-[var(--success)]" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
                     </button>
@@ -687,6 +743,15 @@ function GeneratorInner() {
                       style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', opacity: isGuest ? 0.5 : 1, cursor: isGuest ? 'not-allowed' : 'pointer' }}
                     >
                       <Bookmark className="w-3 h-3" /> Save
+                    </button>
+                    <button
+                      className="btn-ghost"
+                      onClick={handleNewMail}
+                      type="button"
+                      title="Start a new email"
+                      style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                    >
+                      <PlusCircle className="w-3 h-3" /> New Mail
                     </button>
                   </div>
                 </div>
