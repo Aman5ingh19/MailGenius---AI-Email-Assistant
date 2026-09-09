@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { saveTemplate } from '@/lib/actions';
 import Postmark from '@/components/Postmark';
+import { triggerLocalNotification } from '@/lib/firebase/client';
 import {
   Sparkles,
   Send,
@@ -23,6 +24,9 @@ import {
   Languages,
   SlidersHorizontal,
   Info,
+  BellRing,
+  CheckCircle2,
+  X,
 } from 'lucide-react';
 
 const TONES = [
@@ -59,6 +63,7 @@ function GeneratorInner() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [templateLabel, setTemplateLabel] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
+  const [toastNotification, setToastNotification] = useState(null);
   
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
@@ -184,6 +189,23 @@ function GeneratorInner() {
         setReply(data.reply);
         setCurrentVariationIndex(0);
       }
+
+      // Visual Toast Notification + Browser Web Push
+      const notifBody = mode === 'improve'
+        ? 'Your email draft has been polished with corrections and suggestions!'
+        : `Your ${tone.charAt(0).toUpperCase() + tone.slice(1)} email reply is ready to review & copy!`;
+
+      setToastNotification({
+        title: '⚡ MailGenius AI Ready!',
+        body: notifBody,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
+      setTimeout(() => setToastNotification(null), 6000);
+
+      triggerLocalNotification({
+        title: '⚡ MailGenius AI Reply Generated',
+        body: notifBody,
+      });
     } catch (err) {
       setError(err.message || 'Network error. Please try again.');
     } finally {
@@ -713,6 +735,80 @@ function GeneratorInner() {
           )}
         </div>
       </div>
+
+      {/* Floating In-App Live Toast Notification */}
+      {toastNotification && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '24px',
+            right: '24px',
+            zIndex: 9999,
+            maxWidth: '420px',
+            width: 'calc(100vw - 48px)',
+            background: 'var(--surface)',
+            border: '1px solid var(--accent-border, rgba(2, 132, 199, 0.4))',
+            borderRadius: '16px',
+            padding: '1rem 1.25rem',
+            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--border)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.875rem',
+            animation: 'slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+            backdropFilter: 'blur(16px)',
+          }}
+        >
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              background: 'var(--accent-dim, rgba(2, 132, 199, 0.15))',
+              color: 'var(--accent, #0284C7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 0 15px rgba(2, 132, 199, 0.2)',
+            }}
+          >
+            <BellRing className="w-5 h-5 animate-pulse" />
+          </div>
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+              <h4 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text)' }}>
+                {toastNotification.title}
+              </h4>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+                {toastNotification.timestamp}
+              </span>
+            </div>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+              {toastNotification.body}
+            </p>
+          </div>
+
+          <button
+            onClick={() => setToastNotification(null)}
+            type="button"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: '-0.25rem',
+            }}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Save Template Modal */}
       {showSaveModal && (

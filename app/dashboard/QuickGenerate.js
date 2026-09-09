@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Postmark from '@/components/Postmark';
-import { Sparkles, Mail, Copy, Check } from 'lucide-react';
+import { Sparkles, Mail, Copy, Check, BellRing, X } from 'lucide-react';
 import { triggerLocalNotification } from '@/lib/firebase/client';
 
 export default function QuickGenerate() {
@@ -12,12 +12,15 @@ export default function QuickGenerate() {
   const [reply, setReply] = useState(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [toastNotification, setToastNotification] = useState(null);
 
   const handleGenerate = async () => {
     if (!email.trim()) return;
     setLoading(true);
     setError('');
     setReply(null);
+    setToastNotification(null);
+
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
@@ -34,12 +37,24 @@ export default function QuickGenerate() {
       if (!data?.reply || !Array.isArray(data.reply) || data.reply.length === 0) {
         throw new Error('No reply generated. Please try again.');
       }
-      setReply(data.reply[0]);
-      // Trigger notification popup
+
+      const generatedText = data.reply[0];
+      setReply(generatedText);
+
+      // 1. Show floating In-App Toast Notification
+      setToastNotification({
+        title: '⚡ MailGenius AI Ready!',
+        body: `Your ${tone} email reply has been generated successfully!`,
+      });
+
+      // 2. Trigger OS Desktop Notification (if permitted)
       triggerLocalNotification({
         title: '⚡ MailGenius: AI Reply Ready!',
         body: `Your ${tone} email reply is ready to copy and send.`,
       });
+
+      // Auto dismiss toast after 6 seconds
+      setTimeout(() => setToastNotification(null), 6000);
     } catch (err) {
       setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
@@ -55,7 +70,61 @@ export default function QuickGenerate() {
   };
 
   return (
-    <div className="surface" style={{ padding: '1.75rem', height: '100%', display: 'flex', flexDirection: 'column', borderRadius: '14px' }}>
+    <div className="surface" style={{ padding: '1.75rem', height: '100%', display: 'flex', flexDirection: 'column', borderRadius: '14px', position: 'relative' }}>
+      
+      {/* ── Real-Time Popup Notification Toast (Always Visible on Screen) ── */}
+      {toastNotification && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '-1rem',
+            right: '1rem',
+            zIndex: 999,
+            background: 'var(--surface)',
+            border: '1.5px solid var(--accent)',
+            borderRadius: '12px',
+            padding: '0.875rem 1.25rem',
+            boxShadow: '0 12px 30px -5px rgba(2, 132, 199, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.875rem',
+            animation: 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            minWidth: '280px',
+            maxWidth: '380px',
+          }}
+        >
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'var(--accent-dim)',
+              color: 'var(--accent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <BellRing style={{ width: '1.125rem', height: '1.125rem' }} className="animate-bounce" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <h5 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
+              {toastNotification.title}
+            </h5>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0.15rem 0 0 0' }}>
+              {toastNotification.body}
+            </p>
+          </div>
+          <button
+            onClick={() => setToastNotification(null)}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', padding: '0.2rem' }}
+          >
+            <X style={{ width: '0.875rem', height: '0.875rem' }} />
+          </button>
+        </div>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
         <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent-dim)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Sparkles className="w-4 h-4" />
