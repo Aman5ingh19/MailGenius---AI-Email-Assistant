@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Postmark from '@/components/Postmark';
 import { Sparkles, Mail, Copy, Check } from 'lucide-react';
+import { triggerLocalNotification } from '@/lib/firebase/client';
 
 export default function QuickGenerate() {
   const [email, setEmail] = useState('');
@@ -34,6 +35,11 @@ export default function QuickGenerate() {
         throw new Error('No reply generated. Please try again.');
       }
       setReply(data.reply[0]);
+      // Trigger notification popup
+      triggerLocalNotification({
+        title: '⚡ MailGenius: AI Reply Ready!',
+        body: `Your ${tone} email reply is ready to copy and send.`,
+      });
     } catch (err) {
       setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
