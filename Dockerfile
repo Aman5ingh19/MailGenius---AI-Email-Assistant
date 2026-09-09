@@ -1,10 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # ── Stage 1: Base Image ────────────────────────────────────────────────────────
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
-ENV NODE_ENV=production
 
 # ── Stage 2: Dependencies ───────────────────────────────────────────────────────
 FROM base AS deps
@@ -12,8 +11,8 @@ WORKDIR /app
 
 # Copy package manifests
 COPY package.json package-lock.json* ./
-# Install full dependencies for building
-RUN npm ci --ignore-scripts
+# Install all dependencies (including devDependencies needed for build like Tailwind)
+RUN npm ci --include=dev --ignore-scripts
 
 # ── Stage 3: Builder ────────────────────────────────────────────────────────────
 FROM base AS builder
@@ -30,7 +29,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # ── Stage 4: Production Runner ──────────────────────────────────────────────────
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
