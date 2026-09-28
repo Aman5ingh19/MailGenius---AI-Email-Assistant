@@ -2,9 +2,7 @@ import Link from 'next/link';
 import Postmark from '@/components/Postmark';
 import QuickGenerate from './QuickGenerate';
 import NotificationBanner from '@/components/NotificationBanner';
-import connectDB from '@/lib/mongodb';
-import EmailHistory from '@/lib/models/EmailHistory';
-import Template from '@/lib/models/Template';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { auth } from '@/auth';
 import {
   Sparkles,
@@ -49,34 +47,53 @@ export default async function DashboardPage() {
 
   if (userId) {
     try {
-      await connectDB();
-      const query = { userId };
+      const supabase = getSupabaseAdmin();
+      if (supabase) {
+        const { count: totalCount } = await supabase
+          .from('email_history')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+        stats.totalReplies = totalCount || 0;
 
-      stats.totalReplies = await EmailHistory.countDocuments(query);
-      stats.savedReplies = await Template.countDocuments({ userId });
+        const { count: tplCount } = await supabase
+          .from('templates')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+        stats.savedReplies = tplCount || 0;
 
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      stats.repliesThisWeek = await EmailHistory.countDocuments({ ...query, created_at: { $gte: sevenDaysAgo } });
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const { count: weekCount } = await supabase
+          .from('email_history')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .gte('created_at', sevenDaysAgo.toISOString());
+        stats.repliesThisWeek = weekCount || 0;
 
-      const recent = await EmailHistory.find(query)
-        .sort({ created_at: -1 })
-        .limit(3)
-        .lean();
+        const { data: recent } = await supabase
+          .from('email_history')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(3);
 
-      stats.mostRecent = recent[0] ? {
-        ...recent[0],
-        _id: recent[0]._id.toString(),
-        created_at: recent[0].created_at?.toISOString() ?? null,
-      } : null;
+        const recentList = recent || [];
+        stats.mostRecent = recentList[0]
+          ? {
+              ...recentList[0],
+              _id: recentList[0].id,
+              created_at: recentList[0].created_at ? new Date(recentList[0].created_at).toISOString() : null,
+            }
+          : null;
 
-      stats.recentActivity = recent.map(r => ({
-        ...r,
-        _id: r._id.toString(),
-        created_at: r.created_at?.toISOString() ?? null,
-      }));
+        stats.recentActivity = recentList.map((r) => ({
+          ...r,
+          _id: r.id,
+          created_at: r.created_at ? new Date(r.created_at).toISOString() : null,
+        }));
+      }
     } catch {
-      dbError = 'Could not connect to the database. Please check your MONGODB_URI.';
+      dbError = 'Could not connect to Supabase. Please check your NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.';
     }
   }
 

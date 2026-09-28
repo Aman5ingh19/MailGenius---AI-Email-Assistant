@@ -1,8 +1,7 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import connectDB from '@/lib/mongodb';
-import User from '@/lib/models/User';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -18,12 +17,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          await connectDB();
+          const supabase = getSupabaseAdmin();
+          if (!supabase) {
+            console.error('[Auth] Supabase client is not configured.');
+            return null;
+          }
+
           const email = String(credentials.email).toLowerCase().trim();
           const password = String(credentials.password);
 
-          const user = await User.findOne({ email });
-          if (!user || !user.password) {
+          const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
+
+          if (error || !user || !user.password) {
             return null;
           }
 
@@ -33,7 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           return {
-            id: user._id.toString(),
+            id: user.id.toString(),
             email: user.email,
             name: user.name,
             image: user.image || null,
@@ -54,21 +63,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account, profile }) {
       if (account?.provider !== 'credentials') {
         try {
-          await connectDB();
+          const supabase = getSupabaseAdmin();
+          if (!supabase) return true;
+
           const email = user.email?.toLowerCase().trim();
           if (!email) return false;
 
-          await User.findOneAndUpdate(
-            { email },
+          await supabase.from('users').upsert(
             {
-              $set: {
-                name: user.name || profile?.name || email.split('@')[0],
-                image: user.image || profile?.avatar_url || null,
-                provider: account.provider,
-              },
-              $setOnInsert: { email, createdAt: new Date() },
+              email,
+              name: user.name || profile?.name || email.split('@')[0],
+              image: user.image || profile?.avatar_url || null,
+              provider: account.provider,
             },
-            { upsert: true, new: true }
+            { onConflict: 'email' }
           );
         } catch (err) {
           console.error('[Auth] signIn callback error:', err);
@@ -84,9 +92,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.userId = user.id;
         } else {
           try {
-            await connectDB();
-            const dbUser = await User.findOne({ email: token.email });
-            if (dbUser) token.userId = dbUser._id.toString();
+            const supabase = getSupabaseAdmin();
+            if (supabase && token.email) {
+              const { data: dbUser } = await supabase
+                .from('users')
+                .select('id')
+                .eq('email', token.email.toLowerCase().trim())
+                .maybeSingle();
+              if (dbUser) token.userId = dbUser.id.toString();
+            }
           } catch {}
         }
       }

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import User from '@/lib/models/User';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { auth } from '@/auth';
 
 export async function PATCH(req) {
@@ -15,16 +14,21 @@ export async function PATCH(req) {
       return NextResponse.json({ error: 'Name cannot be empty' }, { status: 400 });
     }
 
-    await connectDB();
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service unavailable' }, { status: 500 });
+    }
 
-    const user = await User.findOneAndUpdate(
-      { email: session.user.email?.toLowerCase().trim() },
-      { $set: { name: name.trim() } },
-      { new: true }
-    );
+    const email = session.user.email?.toLowerCase().trim();
+    const { data: user, error } = await supabase
+      .from('users')
+      .update({ name: name.trim() })
+      .eq('email', email)
+      .select('name')
+      .maybeSingle();
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (error || !user) {
+      return NextResponse.json({ error: 'User not found or update failed' }, { status: 404 });
     }
 
     return NextResponse.json({ message: 'Profile updated successfully', name: user.name }, { status: 200 });

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import EmailHistory from '@/lib/models/EmailHistory';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { generateWithFallback } from '@/lib/ai/aiRouter';
 import { auth } from '@/auth';
 import { GenerateSchema, parseBody } from '@/lib/validation/schemas';
 import logger, { logRequest, logResponse } from '@/lib/logger';
 import { rateLimit, rateLimitHeaders } from '@/lib/rateLimit';
+import { getRagContext } from '@/lib/supabase/search';
+import { saveReplyEmbedding } from '@/lib/supabase/embeddings';
 
 export async function POST(request) {
   const start = Date.now();
@@ -122,6 +123,10 @@ Drafted Reply:
 ${draftReply.trim()}
 `;
     } else {
+      // ── RAG: Fetch semantically similar past emails as context ────────────────
+      // Runs in parallel — if Supabase is unconfigured, returns '' immediately
+      const ragContext = await getRagContext(userId, originalEmail);
+
       prompt = `You are a professional email assistant. Rewrite the following email as a reply in a ${tone} tone. `;
       if (length === 'shorter') prompt += 'Be highly concise and brief (1-3 sentences maximum). ';
       if (length === 'longer') prompt += 'Be detailed and thorough, expanding on points thoughtfully (multiple paragraphs). ';
@@ -133,6 +138,13 @@ ${draftReply.trim()}
       } else {
         prompt += '\n\nReturn ONLY the reply text, no explanations, no markdown, no quotes around it.';
       }
+
+      // Inject RAG context block if available (personalized past email style)
+      if (ragContext) {
+        prompt += `\n\n${ragContext}`;
+        logger.info('RAG context injected', { userId, contextLength: ragContext.length });
+      }
+
       prompt += `\n\nOriginal email:\n${originalEmail.trim()}`;
     }
 
@@ -167,16 +179,17 @@ ${draftReply.trim()}
 
         if (userId) {
           try {
-            await connectDB();
-            await EmailHistory.create({
-              userId,
-              original_email: draftReply.trim(),
-              generated_reply: improvedData.improvedReply,
-              tone: 'Improved',
-              created_at: new Date(),
-            });
+            const supabase = getSupabaseAdmin();
+            if (supabase) {
+              await supabase.from('email_history').insert({
+                user_id: userId,
+                original_email: draftReply.trim(),
+                generated_reply: improvedData.improvedReply,
+                tone: 'Improved',
+              });
+            }
           } catch (dbErr) {
-            logger.error('MongoDB save error (improve)', { error: dbErr?.message });
+            logger.error('Supabase save error (improve)', { error: dbErr?.message });
           }
         }
 
@@ -196,17 +209,27 @@ ${draftReply.trim()}
 
       if (userId) {
         try {
-          await connectDB();
-          await EmailHistory.create({
-            userId,
-            original_email: originalEmail.trim(),
-            generated_reply: repliesArray[0],
-            tone,
-            created_at: new Date(),
-          });
+          const supabase = getSupabaseAdmin();
+          if (supabase) {
+            await supabase.from('email_history').insert({
+              user_id: userId,
+              original_email: originalEmail.trim(),
+              generated_reply: repliesArray[0],
+              tone,
+            });
+          }
         } catch (dbErr) {
-          logger.error('MongoDB save error (generate)', { error: dbErr?.message });
+          logger.error('Supabase save error (generate)', { error: dbErr?.message });
         }
+
+        // ── RAG: Store embedding in Supabase (fire-and-forget) ────────────────
+        // Does NOT await — runs in background, never blocks the HTTP response
+        saveReplyEmbedding({
+          userId,
+          originalEmail: originalEmail.trim(),
+          generatedReply: repliesArray[0],
+          tone,
+        }).catch((err) => logger.warn('RAG embedding save failed', { error: err?.message }));
       }
 
       logResponse('POST /api/generate', 200, Date.now() - start);

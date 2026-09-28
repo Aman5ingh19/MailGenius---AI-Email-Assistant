@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectDB from '@/lib/mongodb';
-import User from '@/lib/models/User';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { auth } from '@/auth';
 
 export async function POST(req) {
@@ -17,9 +16,17 @@ export async function POST(req) {
       return NextResponse.json({ error: 'New password must be at least 6 characters long.' }, { status: 400 });
     }
 
-    await connectDB();
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service unavailable' }, { status: 500 });
+    }
 
-    const user = await User.findOne({ email: session.user.email?.toLowerCase().trim() });
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', session.user.email?.toLowerCase().trim())
+      .maybeSingle();
+
     if (!user) {
       return NextResponse.json({ error: 'User account not found.' }, { status: 404 });
     }
@@ -38,8 +45,14 @@ export async function POST(req) {
 
     // Hash and save new password
     const hashed = await bcrypt.hash(newPassword, 12);
-    user.password = hashed;
-    await user.save();
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password: hashed })
+      .eq('id', user.id);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     return NextResponse.json({ message: 'Password updated successfully!' }, { status: 200 });
   } catch (error) {

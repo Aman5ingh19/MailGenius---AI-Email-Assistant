@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
-import connectDB from '@/lib/mongodb';
-import User from '@/lib/models/User';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import logger, { logRequest, logResponse } from '@/lib/logger';
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -42,19 +41,22 @@ export async function POST(request) {
     }
 
     // ── Upload to Cloudinary ──────────────────────────────────────────────────
-    await connectDB();
-    const dbUser = await User.findById(session.user.id);
-    const existingPublicId = dbUser?.cloudinaryPublicId || null;
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service unavailable' }, { status: 500 });
+    }
 
-    // Use user ID as public_id so re-uploads overwrite the same file
     const publicId = `mailgenius/avatars/${session.user.id}`;
     const { url } = await uploadToCloudinary(buffer, { publicId });
 
-    // ── Save URL to MongoDB ───────────────────────────────────────────────────
-    await User.findByIdAndUpdate(session.user.id, {
-      image: url,
-      cloudinaryPublicId: publicId,
-    });
+    // ── Save URL to Supabase users table ──────────────────────────────────────
+    await supabase
+      .from('users')
+      .update({
+        image: url,
+        cloudinary_public_id: publicId,
+      })
+      .eq('id', session.user.id);
 
     logger.info('Avatar updated', { userId: session.user.id, url });
     logResponse('POST /api/user/avatar', 200, Date.now() - start);
@@ -75,10 +77,18 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    await connectDB();
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service unavailable' }, { status: 500 });
+    }
+
     const publicId = `mailgenius/avatars/${session.user.id}`;
     await deleteFromCloudinary(publicId);
-    await User.findByIdAndUpdate(session.user.id, { image: null, cloudinaryPublicId: null });
+
+    await supabase
+      .from('users')
+      .update({ image: null, cloudinary_public_id: null })
+      .eq('id', session.user.id);
 
     logResponse('DELETE /api/user/avatar', 200, Date.now() - start);
     return NextResponse.json({ success: true });

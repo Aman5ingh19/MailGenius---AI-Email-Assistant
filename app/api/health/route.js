@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import connectDB from '@/lib/mongodb';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { getRedisClient } from '@/lib/redis';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +12,7 @@ export async function GET() {
     environment: process.env.NODE_ENV || 'development',
     status: 'healthy',
     services: {
-      mongodb: { status: 'unknown' },
+      supabase: { status: 'unknown' },
       redis: { status: 'unknown' },
     },
     system: {
@@ -25,25 +24,36 @@ export async function GET() {
     },
   };
 
-  // ── 1. Check MongoDB ─────────────────────────────────────────────────────────
+  // ── 1. Check Supabase ────────────────────────────────────────────────────────
   try {
-    const mongoStart = Date.now();
-    await connectDB();
-    const state = mongoose.connection.readyState;
-    const isConnected = state === 1;
+    const supabaseStart = Date.now();
+    const supabase = getSupabaseAdmin();
 
-    checks.services.mongodb = {
-      status: isConnected ? 'healthy' : 'degraded',
-      state: ['disconnected', 'connected', 'connecting', 'disconnecting'][state] || 'unknown',
-      latencyMs: Date.now() - mongoStart,
-    };
+    if (supabase) {
+      const { error } = await supabase.from('users').select('id', { count: 'exact', head: true });
+      const latencyMs = Date.now() - supabaseStart;
 
-    if (!isConnected) {
-      checks.status = 'degraded';
+      if (error && error.code !== 'PGRST116') {
+        checks.services.supabase = {
+          status: 'degraded',
+          error: error.message,
+          latencyMs,
+        };
+      } else {
+        checks.services.supabase = {
+          status: 'healthy',
+          latencyMs,
+        };
+      }
+    } else {
+      checks.services.supabase = {
+        status: 'unconfigured',
+        note: 'Supabase credentials not yet provided in .env.local',
+      };
     }
   } catch (err) {
     checks.status = 'degraded';
-    checks.services.mongodb = {
+    checks.services.supabase = {
       status: 'unhealthy',
       error: err.message,
     };

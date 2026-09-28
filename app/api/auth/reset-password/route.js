@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectDB from '@/lib/mongodb';
-import User from '@/lib/models/User';
-import ResetToken from '@/lib/models/ResetToken';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 
 export async function POST(req) {
   try {
@@ -16,10 +14,17 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
     }
 
-    await connectDB();
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service unavailable' }, { status: 500 });
+    }
 
     // Find the token
-    const resetTokenRecord = await ResetToken.findOne({ token });
+    const { data: resetTokenRecord } = await supabase
+      .from('reset_tokens')
+      .select('*')
+      .eq('token', token)
+      .maybeSingle();
 
     if (!resetTokenRecord) {
       return NextResponse.json(
@@ -29,7 +34,12 @@ export async function POST(req) {
     }
 
     // Find the user
-    const user = await User.findOne({ email: resetTokenRecord.email });
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', resetTokenRecord.email)
+      .maybeSingle();
+
     if (!user) {
       return NextResponse.json(
         { error: 'User not found.' },
@@ -41,11 +51,17 @@ export async function POST(req) {
     const hashed = await bcrypt.hash(newPassword, 12);
 
     // Update the user's password
-    user.password = hashed;
-    await user.save();
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password: hashed })
+      .eq('id', user.id);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     // Delete the used token
-    await ResetToken.deleteOne({ _id: resetTokenRecord._id });
+    await supabase.from('reset_tokens').delete().eq('id', resetTokenRecord.id);
 
     return NextResponse.json(
       { message: 'Password has been successfully reset.' },

@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import connectDB from '@/lib/mongodb';
-import User from '@/lib/models/User';
-import ResetToken from '@/lib/models/ResetToken';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import nodemailer from 'nodemailer';
 
 export async function POST(req) {
@@ -13,11 +11,19 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    await connectDB();
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ message: 'If an account exists, a password reset link has been sent.' }, { status: 200 });
+    }
 
-    // We don't want to reveal if an email exists for security reasons,
-    // so we return a generic success message even if the user isn't found.
+    const normalizedEmail = email.toLowerCase().trim();
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+
+    // Security practice: generic message even if user not found
     if (!user || user.provider !== 'credentials') {
       return NextResponse.json(
         { message: 'If an account exists, a password reset link has been sent.' },
@@ -25,25 +31,20 @@ export async function POST(req) {
       );
     }
 
-    // Generate a secure token
     const token = crypto.randomBytes(32).toString('hex');
 
-    // Save token to database (previous tokens for this user are not deleted automatically 
-    // here, but they expire naturally via TTL index. We could optionally delete old ones.)
-    await ResetToken.deleteMany({ email: user.email }); // delete any existing tokens for safety
-    await ResetToken.create({
+    // Delete old tokens and insert new one
+    await supabase.from('reset_tokens').delete().eq('email', user.email);
+    await supabase.from('reset_tokens').insert({
       email: user.email,
       token,
     });
 
-    // Determine the base URL dynamically or use environment variable
     const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
-    // Set up Nodemailer transporter
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       console.warn('EMAIL_USER or EMAIL_PASS is missing in .env.local. Token generated but email not sent. Reset link:', resetUrl);
-      // In development, if no email is configured, we can just return success and log the URL
       return NextResponse.json(
         { message: 'If an account exists, a password reset link has been sent. (Check server console for link if SMTP is not configured)' },
         { status: 200 }
@@ -51,7 +52,7 @@ export async function POST(req) {
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // You can change this to another provider if needed
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,

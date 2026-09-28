@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectDB from '@/lib/mongodb';
-import User from '@/lib/models/User';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 
 export async function POST(req) {
   try {
@@ -15,10 +14,19 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Password must be at least 6 characters long.' }, { status: 400 });
     }
 
-    await connectDB();
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service is temporarily unavailable.' }, { status: 500 });
+    }
 
     const normalizedEmail = email.toLowerCase().trim();
-    const existing = await User.findOne({ email: normalizedEmail });
+
+    // Check if user already exists
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
 
     if (existing) {
       return NextResponse.json(
@@ -28,15 +36,27 @@ export async function POST(req) {
     }
 
     const hashed = await bcrypt.hash(password, 12);
-    const user = await User.create({
-      name: (name || 'User').trim(),
-      email: normalizedEmail,
-      password: hashed,
-      provider: 'credentials',
-    });
+    const { data: user, error: insertError } = await supabase
+      .from('users')
+      .insert({
+        name: (name || 'User').trim(),
+        email: normalizedEmail,
+        password: hashed,
+        provider: 'credentials',
+      })
+      .select('id')
+      .single();
+
+    if (insertError) {
+      console.error('[Register] Supabase insert error:', insertError.message);
+      return NextResponse.json(
+        { error: 'Failed to create account. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
-      { message: 'Account created successfully!', userId: user._id.toString() },
+      { message: 'Account created successfully!', userId: user.id.toString() },
       { status: 201 }
     );
   } catch (error) {

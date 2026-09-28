@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import EmailHistory from '@/lib/models/EmailHistory';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { auth } from '@/auth';
 import logger, { logRequest, logResponse } from '@/lib/logger';
 
@@ -18,35 +17,44 @@ export async function GET(request) {
     const cursor = searchParams.get('cursor'); // ISO date string of the last item
     const q = searchParams.get('q')?.trim() || '';
 
-    await connectDB();
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ records: [], nextCursor: null, hasMore: false });
+    }
 
-    const query = userId ? { userId } : { userId: null };
+    let query = supabase
+      .from('email_history')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(PAGE_SIZE + 1);
 
-    // ── Search filter ─────────────────────────────────────────────────────────
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    // Search filter (ILIKE across fields)
     if (q) {
-      query.$or = [
-        { original_email: { $regex: q, $options: 'i' } },
-        { generated_reply: { $regex: q, $options: 'i' } },
-        { tone: { $regex: q, $options: 'i' } },
-      ];
+      query = query.or(`original_email.ilike.%${q}%,generated_reply.ilike.%${q}%,tone.ilike.%${q}%`);
     }
 
-    // ── Cursor-based pagination ───────────────────────────────────────────────
-    // Cursor = created_at of the last item we returned. Next page = items older than that.
+    // Cursor pagination (fetch older than cursor)
     if (cursor) {
-      query.created_at = { $lt: new Date(cursor) };
+      query = query.lt('created_at', cursor);
     }
 
-    const items = await EmailHistory.find(query)
-      .sort({ created_at: -1 })
-      .limit(PAGE_SIZE + 1) // fetch one extra to know if there's a next page
-      .lean();
+    const { data: items, error } = await query;
 
-    const hasMore = items.length > PAGE_SIZE;
-    const records = items.slice(0, PAGE_SIZE).map((item) => ({
+    if (error) {
+      logger.error('Supabase query error in GET /api/history', { error: error.message });
+      return NextResponse.json({ error: 'Failed to fetch history.' }, { status: 500 });
+    }
+
+    const results = items || [];
+    const hasMore = results.length > PAGE_SIZE;
+    const records = results.slice(0, PAGE_SIZE).map((item) => ({
       ...item,
-      _id: item._id.toString(),
-      created_at: item.created_at?.toISOString() ?? null,
+      _id: item.id,
+      created_at: item.created_at ? new Date(item.created_at).toISOString() : null,
     }));
 
     const nextCursor = hasMore ? records[records.length - 1].created_at : null;
@@ -74,10 +82,23 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }
 
-    await connectDB();
-    await EmailHistory.findOneAndDelete({ _id: id, userId });
-    logger.info('History item deleted', { id, userId });
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 500 });
+    }
 
+    let deleteQuery = supabase.from('email_history').delete().eq('id', id);
+    if (userId) {
+      deleteQuery = deleteQuery.eq('user_id', userId);
+    }
+
+    const { error } = await deleteQuery;
+    if (error) {
+      logger.error('Supabase error deleting history item', { error: error.message });
+      return NextResponse.json({ error: 'Failed to delete item.' }, { status: 500 });
+    }
+
+    logger.info('History item deleted', { id, userId });
     logResponse('DELETE /api/history', 200, Date.now() - start);
     return NextResponse.json({ success: true });
 
