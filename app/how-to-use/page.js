@@ -346,6 +346,49 @@ export default function HowToUsePage() {
             </div>
           </div>
         </div>
+
+        {/* Step 6 */}
+        <div className="surface" style={{ borderRadius: '16px', padding: '2rem', border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+            <div
+              style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '12px',
+                background: 'rgba(62, 207, 142, 0.12)',
+                color: '#3ECF8E',
+                fontWeight: 800,
+                fontSize: '1.375rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                fontFamily: 'var(--font-display)',
+                border: '1px solid rgba(62, 207, 142, 0.3)',
+              }}
+            >
+              6
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--text)' }}>
+                  RAG Semantic Memory: Personalized Style Learning
+                </h2>
+                <span style={{ fontSize: '0.75rem', background: 'rgba(62, 207, 142, 0.15)', color: '#3ECF8E', padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid rgba(62, 207, 142, 0.3)', fontWeight: 600 }}>
+                  Supabase pgvector Powered
+                </span>
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9375rem', lineHeight: 1.6, marginBottom: '1rem' }}>
+                Every time you generate replies, MailGenius automatically converts them into 768-dimensional vector embeddings stored securely in Supabase. When you reply to future emails:
+              </p>
+              <ul style={{ paddingLeft: '1.25rem', color: 'var(--text-muted)', fontSize: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <li>The system runs an HNSW cosine similarity search to find your most relevant past email replies.</li>
+                <li>Those past writing examples are injected as context into the AI model in real time.</li>
+                <li>The result: Your replies sound genuinely like <strong>you</strong>, maintaining consistent terminology, phrasing, and style.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── KEYBOARD SHORTCUTS & PRO TIPS ──────────────────────────── */}
