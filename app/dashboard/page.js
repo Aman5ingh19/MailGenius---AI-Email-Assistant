@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import Postmark from '@/components/Postmark';
 import QuickGenerate from './QuickGenerate';
 import NotificationBanner from '@/components/NotificationBanner';
+import GuestToast from '@/components/GuestToast';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { auth } from '@/auth';
 import {
@@ -116,6 +118,11 @@ export default async function DashboardPage() {
           Generate New Reply
         </Link>
       </div>
+
+      {/* ── Guest Access Toast (shown when redirected from /history or /saved) */}
+      <Suspense fallback={null}>
+        <GuestToast />
+      </Suspense>
 
       {/* ── FCM Notification Banner ────────────────────────────── */}
       <NotificationBanner />

@@ -12,7 +12,7 @@ export default async function HistoryPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect('/login');
+    redirect('/dashboard?guest_blocked=history');
   }
 
   return (
