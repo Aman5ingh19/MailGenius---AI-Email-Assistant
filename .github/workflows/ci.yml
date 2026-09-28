@@ -35,6 +35,8 @@ jobs:
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          MONGODB_URI: "mongodb://localhost:27017/test"
           AUTH_SECRET: "ci-dummy-secret-key-32-chars-long-test"
           GEMINI_API_KEY: "dummy-key-for-build"
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder"

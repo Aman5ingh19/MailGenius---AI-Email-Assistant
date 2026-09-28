@@ -12,14 +12,11 @@ services:
       - .env.local
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://mongo:27017/mailgenius
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - NEXTAUTH_URL=http://localhost:3000
     depends_on:
       redis:
-        condition: service_healthy
-      mongo:
         condition: service_healthy
     networks:
       - mailgenius-net
@@ -44,28 +41,10 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── MongoDB Database ──────────────────────────────────────────────────────────
-  mongo:
-    image: mongo:7.0
-    container_name: mailgenius-mongo
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - mailgenius-net
-    healthcheck:
-      test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 networks:
   mailgenius-net:
     driver: bridge
 
 volumes:
   redis-data:
-  mongo-data:
   app-logs:

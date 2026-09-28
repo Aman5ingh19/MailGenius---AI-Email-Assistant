@@ -1067,7 +1067,7 @@ export default function SettingsPage() {
                     { service: 'Groq LLaMA 3.3 (70B)', desc: 'Sub-second LPU Fast Fallback', status: 'Standby 🟢' },
                     { service: 'OpenRouter LLaMA 3.2', desc: 'Distributed Redundancy Router', status: 'Standby 🟢' },
                     { service: 'Cloudinary Media CDN', desc: 'Encrypted Avatar Asset Storage', status: 'Connected 🟢' },
-                    { service: 'MongoDB Atlas Enterprise Vault', desc: 'Encrypted User & Template Store', status: 'Healthy 🟢' },
+                    { service: 'Supabase PostgreSQL + pgvector', desc: 'Encrypted User & Template Store', status: 'Healthy 🟢' },
                   ].map(({ service, desc, status }) => (
                     <div key={service} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.25rem', background: 'var(--surface-raised)', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
                       <div>
