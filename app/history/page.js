@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 import HistoryClient from './HistoryClient';
-import AuthRequiredCard from '@/components/AuthRequiredCard';
 
 export const metadata = {
   title: 'History — 📧 MailGenius',
@@ -12,13 +12,7 @@ export default async function HistoryPage() {
   const session = await auth();
 
   if (!session?.user) {
-    return (
-      <AuthRequiredCard
-        title="History Vault is Locked"
-        description="Your AI-generated email reply archives are encrypted and private to your account. Sign in or register to browse, search, and manage your past history."
-        feature="History"
-      />
-    );
+    redirect('/dashboard');
   }
 
   return (
