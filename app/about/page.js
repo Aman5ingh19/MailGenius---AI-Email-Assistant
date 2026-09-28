@@ -272,6 +272,18 @@ export default function AboutPage() {
               Bookmark recurring replies in your template library and configure personalized custom email signatures in Settings.
             </p>
           </div>
+
+          <div className="surface" style={{ padding: '1.5rem', borderRadius: '14px' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(62, 207, 142, 0.12)', color: '#3ECF8E', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.875rem' }}>
+              <Layers className="w-5 h-5" />
+            </div>
+            <h3 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.375rem' }}>
+              RAG Personalized Semantic Memory
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              Supabase pgvector converts email replies into 768-dim embeddings, automatically retrieving past writing context to personalize every new reply.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -308,7 +320,7 @@ export default function AboutPage() {
                 <strong style={{ color: 'var(--text)', fontSize: '0.875rem' }}>Isolated User Vaults</strong>
               </div>
               <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                All saved templates and generation history are strictly scoped to your authenticated MongoDB user ID.
+                All saved templates, history, and pgvector RAG embeddings are strictly isolated by Supabase Row Level Security (RLS).
               </p>
             </div>
 
@@ -336,9 +348,9 @@ export default function AboutPage() {
             { label: 'Application Framework', value: 'Next.js 16 (App Router & Turbopack)' },
             { label: 'UI Engine', value: 'React 19 & Lucide React Icons' },
             { label: 'Authentication', value: 'NextAuth.js v5 (JWT & Bcrypt 12)' },
-            { label: 'Database & Vault', value: 'MongoDB Atlas with Mongoose' },
+            { label: 'Database & Vector Store', value: 'Supabase (PostgreSQL + pgvector RAG)' },
             { label: 'Asset Storage', value: 'Cloudinary CDN Media Hosting' },
-            { label: 'Email Dispatch', value: 'Nodemailer SMTP TLS' },
+            { label: 'Push Notifications', value: 'Firebase Cloud Messaging (FCM)' },
             { label: 'Rate Limiting', value: 'Upstash / Redis Distributed Limiter' },
             { label: 'Validation & Logs', value: 'Zod Schemas & Winston Logger' },
           ].map(({ label, value }) => (
