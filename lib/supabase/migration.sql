@@ -1,7 +1,4 @@
--- ============================================================
--- MailGenius — 100% Supabase PostgreSQL & RAG Migration
--- Run this in: Supabase Dashboard → SQL Editor → New Query
--- ============================================================
+
 
 -- 1. Enable pgvector extension for AI RAG embeddings
 CREATE EXTENSION IF NOT EXISTS vector;
