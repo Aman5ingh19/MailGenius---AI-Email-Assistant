@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import {
   Sparkles,
@@ -26,6 +26,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   const isGuest = !session?.user;
 
@@ -98,11 +99,21 @@ export default function Sidebar() {
           const isActive = pathname === href;
           const isLocked = isGuest && requiresAuth;
 
+          const handleLockedClick = (e) => {
+            if (isLocked) {
+              e.preventDefault();
+              // Extract page name for the toast param
+              const page = href.replace('/', '');
+              router.push(`/dashboard?guest_blocked=${page}`);
+            }
+          };
+
           return (
             <Link
               key={href}
               href={href}
               id={`nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
+              onClick={handleLockedClick}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -117,6 +128,7 @@ export default function Sidebar() {
                 background: isActive ? 'var(--accent-dim)' : 'transparent',
                 border: isActive ? '1px solid var(--accent-border)' : '1px solid transparent',
                 transition: 'all 0.15s ease',
+                cursor: isLocked ? 'not-allowed' : 'pointer',
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
