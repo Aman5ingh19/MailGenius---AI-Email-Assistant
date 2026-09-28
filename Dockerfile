@@ -25,9 +25,14 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_OUTPUT_STANDALONE=true
-ENV MONGODB_URI="mongodb://localhost:27017/build"
 ENV AUTH_SECRET="buildtimeauthsecretkeyatleast32charslong!"
 ENV GEMINI_API_KEY="build-time-dummy-key"
+# NEXT_PUBLIC_* vars are baked in at compile time — use ARG so they can be
+# overridden via --build-arg in CI/CD without hardcoding real secrets.
+ARG NEXT_PUBLIC_SUPABASE_URL="https://placeholder.supabase.co"
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder"
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 # Build Next.js standalone application
 RUN npm run build
