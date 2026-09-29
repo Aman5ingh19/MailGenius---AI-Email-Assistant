@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS public.email_embeddings (
   original_email TEXT NOT NULL,
   generated_reply TEXT NOT NULL,
   tone TEXT NOT NULL,
-  embedding vector(768), -- Gemini text-embedding-004 produces 768 dimensions
+  embedding vector(768), -- Gemini gemini-embedding-001 produces 768 dimensions
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
