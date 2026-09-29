@@ -217,13 +217,10 @@ function GeneratorInner() {
   }
 
   function handleClear() {
-    setOriginalEmail('');
-    setDraftReply('');
-    setQuickReplies([]);
-    setError('');
+    handleAllClear();
   }
 
-  function handleNewMail() {
+  function handleAllClear() {
     setOriginalEmail('');
     setDraftReply('');
     setReply(null);
@@ -231,6 +228,10 @@ function GeneratorInner() {
     setQuickReplies([]);
     setError('');
     setCurrentVariationIndex(0);
+  }
+
+  function handleNewMail() {
+    handleAllClear();
   }
 
   async function handleCopy() {
@@ -598,8 +599,8 @@ function GeneratorInner() {
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <button
                 type="button"
-                onClick={handleClear}
-                disabled={!originalEmail && !draftReply}
+                onClick={handleAllClear}
+                disabled={!originalEmail && !draftReply && !reply && !improveResult}
                 className="btn-secondary"
                 style={{
                   padding: '0.55rem 0.95rem',
@@ -607,13 +608,13 @@ function GeneratorInner() {
                   gap: '0.4rem',
                   alignItems: 'center',
                   fontSize: '0.8125rem',
-                  opacity: (!originalEmail && !draftReply) ? 0.45 : 1,
-                  cursor: (!originalEmail && !draftReply) ? 'not-allowed' : 'pointer',
+                  opacity: (!originalEmail && !draftReply && !reply && !improveResult) ? 0.45 : 1,
+                  cursor: (!originalEmail && !draftReply && !reply && !improveResult) ? 'not-allowed' : 'pointer',
                 }}
-                title="Clear input text area"
-                id="btn-clear-input"
+                title="Clear both incoming email and generated reply"
+                id="btn-all-clear"
               >
-                <RotateCcw className="w-3.5 h-3.5" /> Clear
+                <RotateCcw className="w-3.5 h-3.5" /> All Clear
               </button>
               
               <button
@@ -815,6 +816,33 @@ function GeneratorInner() {
               </div>
             )
           )}
+
+          {/* ── Bottom All Clear Bar (where marked) ── */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '1rem', paddingTop: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={handleAllClear}
+              disabled={!originalEmail && !draftReply && !reply && !improveResult}
+              className="btn-ghost"
+              style={{
+                fontSize: '0.8125rem',
+                padding: '0.45rem 0.95rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                color: 'var(--text-muted)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                opacity: (!originalEmail && !draftReply && !reply && !improveResult) ? 0.4 : 1,
+                cursor: (!originalEmail && !draftReply && !reply && !improveResult) ? 'not-allowed' : 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+              title="Clear both incoming email & generated reply"
+              id="btn-all-clear-bottom"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> All Clear
+            </button>
+          </div>
         </div>
       </div>
 

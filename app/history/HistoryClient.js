@@ -19,7 +19,9 @@ import {
   Send,
   Filter,
   CheckCircle2,
+  Bookmark,
 } from 'lucide-react';
+import { saveTemplate } from '@/lib/actions';
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -44,6 +46,8 @@ export default function HistoryClient() {
   const [expandedId, setExpandedId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [savedIds, setSavedIds] = useState([]);
+  const [savingId, setSavingId] = useState(null);
   const [selectedTone, setSelectedTone] = useState('all');
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
@@ -91,22 +95,42 @@ export default function HistoryClient() {
     }
   }
 
-  // Delete
+  // Fast Optimistic Delete — 0ms instant UI removal
   function handleDelete(id) {
-    setDeletingId(id);
-    startTransition(async () => {
-      try {
-        await fetch('/api/history', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id }),
-        });
-        setHistory((prev) => prev.filter((item) => item._id !== id));
-        if (expandedId === id) setExpandedId(null);
-      } finally {
-        setDeletingId(null);
+    const itemToDelete = history.find((item) => (item._id || item.id) === id);
+    // 1. Instantly remove from UI
+    setHistory((prev) => prev.filter((item) => (item._id || item.id) !== id));
+    if (expandedId === id) setExpandedId(null);
+
+    // 2. Perform deletion in background
+    fetch('/api/history', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).then(async (res) => {
+      if (!res.ok) {
+        if (itemToDelete) setHistory((prev) => [itemToDelete, ...prev]);
+        setDbError('Failed to delete item from server.');
       }
+    }).catch(() => {
+      if (itemToDelete) setHistory((prev) => [itemToDelete, ...prev]);
+      setDbError('Failed to delete item from server.');
     });
+  }
+
+  // Save as Template
+  async function handleSave(item) {
+    const id = item._id || item.id;
+    setSavingId(id);
+    try {
+      const label = truncate(item.original_email, 40) || `${item.tone || 'Formal'} Reply`;
+      await saveTemplate(item.generated_reply, label);
+      setSavedIds((prev) => [...prev, id]);
+    } catch (err) {
+      setDbError(err?.message || 'Failed to save template');
+    } finally {
+      setSavingId(null);
+    }
   }
 
   async function handleCopy(id, text) {
@@ -289,6 +313,28 @@ export default function HistoryClient() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => handleSave(item)}
+                      disabled={savedIds.includes(item._id || item.id) || savingId === (item._id || item.id)}
+                      className="btn-ghost"
+                      style={{
+                        padding: '0.35rem 0.65rem',
+                        fontSize: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                        color: savedIds.includes(item._id || item.id) ? 'var(--success)' : undefined,
+                      }}
+                      title={savedIds.includes(item._id || item.id) ? 'Saved to Templates' : 'Save as Template'}
+                    >
+                      {savedIds.includes(item._id || item.id) ? (
+                        <><Check className="w-3.5 h-3.5 text-[var(--success)]" /> Saved</>
+                      ) : savingId === (item._id || item.id) ? (
+                        <div className="spinner" style={{ width: 10, height: 10 }} />
+                      ) : (
+                        <><Bookmark className="w-3.5 h-3.5" /> Save</>
+                      )}
+                    </button>
                     <button
                       onClick={() => handleCopy(item._id, item.generated_reply)}
                       className="btn-ghost"
