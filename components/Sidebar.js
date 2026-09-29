@@ -102,9 +102,7 @@ export default function Sidebar() {
           const handleLockedClick = (e) => {
             if (isLocked) {
               e.preventDefault();
-              // Extract page name for the toast param
-              const page = href.replace('/', '');
-              router.push(`/dashboard?guest_blocked=${page}`);
+              router.push('/login');
             }
           };
 

@@ -12,7 +12,7 @@ export default async function SavedPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect('/dashboard?guest_blocked=saved');
+    redirect('/login');
   }
 
   let templates = [];

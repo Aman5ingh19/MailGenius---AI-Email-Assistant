@@ -34,7 +34,7 @@ export default function Topbar() {
     if (e.key === 'Enter') {
       if (!user) {
         // Guest: redirect to dashboard with toast instead of /history
-        router.push('/dashboard?guest_blocked=history');
+        router.push('/login');
         return;
       }
       if (query.trim()) {
@@ -661,12 +661,12 @@ export default function Topbar() {
 
           {/* History — locked for guests */}
           <Link
-            href={user ? '/history' : '/dashboard?guest_blocked=history'}
+            href={user ? '/history' : '/login'}
             onClick={(e) => {
               if (!user) {
                 e.preventDefault();
                 setMenuOpen(false);
-                router.push('/dashboard?guest_blocked=history');
+                router.push('/login');
               } else {
                 setMenuOpen(false);
               }
@@ -683,12 +683,12 @@ export default function Topbar() {
 
           {/* Saved — locked for guests */}
           <Link
-            href={user ? '/saved' : '/dashboard?guest_blocked=saved'}
+            href={user ? '/saved' : '/login'}
             onClick={(e) => {
               if (!user) {
                 e.preventDefault();
                 setMenuOpen(false);
-                router.push('/dashboard?guest_blocked=saved');
+                router.push('/login');
               } else {
                 setMenuOpen(false);
               }

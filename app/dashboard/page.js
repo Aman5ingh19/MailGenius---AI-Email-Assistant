@@ -190,7 +190,7 @@ export default async function DashboardPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>Recent Reply</h2>
             <Link
-              href={userId ? '/history' : '/dashboard?guest_blocked=history'}
+              href={userId ? '/history' : '/login'}
               className="btn-ghost"
               style={{ fontSize: '0.8125rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
             >
@@ -231,7 +231,7 @@ export default async function DashboardPage() {
 
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto', flexWrap: 'wrap' }}>
                 <Link
-                  href={userId ? '/history' : '/dashboard?guest_blocked=history'}
+                  href={userId ? '/history' : '/login'}
                   className="btn-ghost"
                   style={{ flex: 1, minWidth: '120px', fontSize: '0.8125rem' }}
                 >
@@ -268,7 +268,7 @@ export default async function DashboardPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>Recent Activity</h2>
           <Link
-            href={userId ? '/history' : '/dashboard?guest_blocked=history'}
+            href={userId ? '/history' : '/login'}
             className="btn-ghost"
             style={{ fontSize: '0.8125rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
           >
