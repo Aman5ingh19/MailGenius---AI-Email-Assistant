@@ -32,6 +32,11 @@ export default function Topbar() {
 
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
+      if (!user) {
+        // Guest: redirect to dashboard with toast instead of /history
+        router.push('/dashboard?guest_blocked=history');
+        return;
+      }
       if (query.trim()) {
         router.push(`/history?q=${encodeURIComponent(query.trim())}`);
       } else {
@@ -653,9 +658,52 @@ export default function Topbar() {
         >
           <Link href="/dashboard" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>Dashboard</Link>
           <Link href="/generator" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>Generate Reply</Link>
-          <Link href="/history" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>History</Link>
-          <Link href="/saved" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>Saved</Link>
-          <Link href="/settings" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>Settings &amp; Profile</Link>
+
+          {/* History — locked for guests */}
+          <Link
+            href={user ? '/history' : '/dashboard?guest_blocked=history'}
+            onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                setMenuOpen(false);
+                router.push('/dashboard?guest_blocked=history');
+              } else {
+                setMenuOpen(false);
+              }
+            }}
+            style={{
+              fontSize: '1.125rem', color: user ? 'var(--text)' : 'var(--text-dim)',
+              textDecoration: 'none', fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+            }}
+          >
+            <History className="w-5 h-5" />
+            History {!user && <Lock className="w-4 h-4 opacity-50" />}
+          </Link>
+
+          {/* Saved — locked for guests */}
+          <Link
+            href={user ? '/saved' : '/dashboard?guest_blocked=saved'}
+            onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                setMenuOpen(false);
+                router.push('/dashboard?guest_blocked=saved');
+              } else {
+                setMenuOpen(false);
+              }
+            }}
+            style={{
+              fontSize: '1.125rem', color: user ? 'var(--text)' : 'var(--text-dim)',
+              textDecoration: 'none', fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+            }}
+          >
+            <Bookmark className="w-5 h-5" />
+            Saved {!user && <Lock className="w-4 h-4 opacity-50" />}
+          </Link>
+
+          <Link href="/settings" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>Settings & Profile</Link>
           <Link href="/how-to-use" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>How to Use</Link>
           <Link href="/about" onClick={() => setMenuOpen(false)} style={{ fontSize: '1.125rem', color: 'var(--text)', textDecoration: 'none', fontWeight: 600 }}>About</Link>
           

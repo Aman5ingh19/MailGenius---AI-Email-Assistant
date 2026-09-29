@@ -189,7 +189,11 @@ export default async function DashboardPage() {
         <div className="surface" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', borderRadius: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>Recent Reply</h2>
-            <Link href="/history" className="btn-ghost" style={{ fontSize: '0.8125rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <Link
+              href={userId ? '/history' : '/dashboard?guest_blocked=history'}
+              className="btn-ghost"
+              style={{ fontSize: '0.8125rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
               <span>View all history</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -226,7 +230,11 @@ export default async function DashboardPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto', flexWrap: 'wrap' }}>
-                <Link href="/history" className="btn-ghost" style={{ flex: 1, minWidth: '120px', fontSize: '0.8125rem' }}>
+                <Link
+                  href={userId ? '/history' : '/dashboard?guest_blocked=history'}
+                  className="btn-ghost"
+                  style={{ flex: 1, minWidth: '120px', fontSize: '0.8125rem' }}
+                >
                   <ExternalLink className="w-3.5 h-3.5" />
                   View in History
                 </Link>
@@ -259,7 +267,11 @@ export default async function DashboardPage() {
       <div className="surface" style={{ padding: '1.75rem', borderRadius: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>Recent Activity</h2>
-          <Link href="/history" className="btn-ghost" style={{ fontSize: '0.8125rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Link
+            href={userId ? '/history' : '/dashboard?guest_blocked=history'}
+            className="btn-ghost"
+            style={{ fontSize: '0.8125rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+          >
             <span>View all</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
