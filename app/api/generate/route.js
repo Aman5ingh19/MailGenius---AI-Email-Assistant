@@ -141,7 +141,7 @@ ${draftReply.trim()}
 
       // Inject RAG context block if available (personalized past email style)
       if (ragContext) {
-        prompt += `\n\n${ragContext}`;
+        prompt += `\n\n${ragContext}\nIMPORTANT: Factor in any relevant preferences, availability constraints (e.g. times of day), platform preferences (e.g. Zoom/Google Meet), or recurring choices established in the past context above when crafting this reply.`;
         logger.info('RAG context injected', { userId, contextLength: ragContext.length });
       }
 
