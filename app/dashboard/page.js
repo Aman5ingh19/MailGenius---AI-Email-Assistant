@@ -51,33 +51,40 @@ export default async function DashboardPage() {
     try {
       const supabase = getSupabaseAdmin();
       if (supabase) {
-        const { count: totalCount } = await supabase
-          .from('email_history')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId);
-        stats.totalReplies = totalCount || 0;
-
-        const { count: tplCount } = await supabase
-          .from('templates')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId);
-        stats.savedReplies = tplCount || 0;
-
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        const { count: weekCount } = await supabase
-          .from('email_history')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .gte('created_at', sevenDaysAgo.toISOString());
-        stats.repliesThisWeek = weekCount || 0;
 
-        const { data: recent } = await supabase
-          .from('email_history')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
-          .limit(3);
+        // Run all 4 queries in PARALLEL — 3-4x faster than sequential awaits
+        const [
+          { count: totalCount },
+          { count: tplCount },
+          { count: weekCount },
+          { data: recent },
+        ] = await Promise.all([
+          supabase
+            .from('email_history')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId),
+          supabase
+            .from('templates')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId),
+          supabase
+            .from('email_history')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .gte('created_at', sevenDaysAgo.toISOString()),
+          supabase
+            .from('email_history')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(3),
+        ]);
+
+        stats.totalReplies   = totalCount || 0;
+        stats.savedReplies   = tplCount   || 0;
+        stats.repliesThisWeek = weekCount  || 0;
 
         const recentList = recent || [];
         stats.mostRecent = recentList[0]
